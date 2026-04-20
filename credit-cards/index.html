@@ -4,507 +4,665 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Credit Cards — EA Database</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
-  :root {
-    --blue: #2563eb; --blue-lt: #eff6ff; --blue-dk: #1d4ed8;
-    --green: #16a34a; --green-lt: #f0fdf4;
-    --red: #dc2626; --red-lt: #fef2f2;
-    --yellow: #d97706; --yellow-lt: #fffbeb;
-    --purple: #7c3aed; --purple-lt: #f5f3ff;
-    --gray-50: #f8fafc; --gray-100: #f1f5f9; --gray-200: #e2e8f0;
-    --gray-300: #cbd5e1; --gray-400: #94a3b8; --gray-500: #64748b;
-    --gray-600: #475569; --gray-700: #334155; --gray-800: #1e293b;
-    --sidebar-w: 240px; --radius: 8px;
-    --shadow: 0 1px 3px rgba(0,0,0,.1), 0 1px 2px rgba(0,0,0,.06);
-    --shadow-md: 0 4px 6px rgba(0,0,0,.07), 0 2px 4px rgba(0,0,0,.06);
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--gray-50); color: var(--gray-800); display: flex; min-height: 100vh; }
-
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f0ede8;--surface:#ffffff;--surface2:#ece9e3;--surface3:#e2dfd8;
+  --navy:#0b1628;--navy2:#1a2d4f;--gold:#a07010;--gold-lt:#fdf3d8;
+  --tx:#0b1628;--tx2:#5a6070;--tx3:#9098a8;
+  --g:#1a5c2a;--g-bg:#e5f4ea;--g2:#2a8040;
+  --a:#7a4500;--a-bg:#fef3de;
+  --r:#8b1c1c;--r-bg:#fde8e8;
+  --b:#0e3a8a;--b-bg:#e5eefb;
+  --p:#5a1a8a;--p-bg:#f0e5fb;
+  --teal:#0a5a5a;--teal-bg:#e0f4f4;
+  --bd:rgba(11,22,40,.09);--bd2:rgba(11,22,40,.18);
+  --sh:0 1px 3px rgba(0,0,0,.06),0 3px 8px rgba(0,0,0,.06);
+  --sh2:0 4px 16px rgba(0,0,0,.10),0 1px 4px rgba(0,0,0,.05);
+  --r8:8px;--r12:12px;--r16:16px;--r20:20px;
   /* Sidebar */
-  #sidebar { width: var(--sidebar-w); min-height: 100vh; background: var(--gray-800); color: #fff; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; z-index: 100; }
-  .sidebar-logo { padding: 20px 16px 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,.1); }
-  .logo-icon { width: 36px; height: 36px; background: var(--yellow); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-  .sidebar-logo h2 { font-size: 15px; font-weight: 700; line-height: 1.2; }
-  .sidebar-logo span { font-size: 11px; color: var(--gray-400); }
-  .sidebar-section { padding: 16px 12px 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--gray-400); }
-  nav { padding: 8px; flex: 1; }
-  .nav-link { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 6px; color: var(--gray-300); text-decoration: none; font-size: 14px; font-weight: 500; transition: all .15s; cursor: pointer; margin-bottom: 2px; }
-  .nav-link:hover { background: rgba(255,255,255,.08); color: #fff; }
-  .nav-link.active { background: var(--yellow); color: #fff; }
-  .nav-link i { width: 16px; text-align: center; font-size: 13px; }
-  .sidebar-footer { padding: 12px; border-top: 1px solid rgba(255,255,255,.1); }
-  .sidebar-footer .nav-link { color: var(--gray-400); font-size: 13px; }
+  --sidebar-w:240px;
+  --sidebar-bg:#1e293b;
+  --sidebar-active:#d97706;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#0d1117;--surface:#161b25;--surface2:#1e2535;--surface3:#252d40;
+  --tx:#e8eaf0;--tx2:#8899bb;--tx3:#556688;
+  --bd:rgba(255,255,255,.08);--bd2:rgba(255,255,255,.15);
+  --sh:0 1px 3px rgba(0,0,0,.3),0 4px 12px rgba(0,0,0,.25);
+  --sh2:0 6px 20px rgba(0,0,0,.4),0 2px 6px rgba(0,0,0,.2);
+}}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;display:flex;}
 
-  /* Main */
-  #main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; }
-  .topbar { background: #fff; border-bottom: 1px solid var(--gray-200); padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
-  .topbar h1 { font-size: 18px; font-weight: 700; }
-  .topbar-right { display: flex; align-items: center; gap: 10px; }
-  .btn-primary { display: inline-flex; align-items: center; gap: 7px; background: var(--yellow); color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background .15s; }
-  .btn-primary:hover { background: #b45309; }
-  .search-box { display: flex; align-items: center; gap: 8px; background: var(--gray-100); border: 1px solid var(--gray-200); border-radius: 6px; padding: 6px 12px; }
-  .search-box input { border: none; background: transparent; font-size: 13px; outline: none; width: 180px; }
-  .search-box i { color: var(--gray-400); font-size: 12px; }
+/* ── Sidebar ── */
+#sidebar{width:var(--sidebar-w);min-height:100vh;background:var(--sidebar-bg);color:#fff;display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:100;flex-shrink:0;}
+.sidebar-logo{padding:20px 16px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,.1);}
+.logo-icon{width:36px;height:36px;background:var(--sidebar-active);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.sidebar-logo h2{font-size:15px;font-weight:700;line-height:1.2;}
+.sidebar-logo span{font-size:11px;color:#94a3b8;}
+.sidebar-section{padding:16px 12px 4px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#94a3b8;}
+.sidebar-nav{padding:8px;flex:1;}
+.nav-link{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:6px;color:#cbd5e1;text-decoration:none;font-size:14px;font-weight:500;transition:all .15s;cursor:pointer;margin-bottom:2px;}
+.nav-link:hover{background:rgba(255,255,255,.08);color:#fff;}
+.nav-link.active{background:var(--sidebar-active);color:#fff;}
+.nav-link svg{width:15px;height:15px;flex-shrink:0;opacity:.8;}
+.sidebar-footer{padding:12px;border-top:1px solid rgba(255,255,255,.1);}
+.sidebar-footer .nav-link{color:#94a3b8;font-size:13px;}
 
-  /* Content */
-  .content { padding: 24px; }
+/* ── Main wrapper ── */
+#main-wrap{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-width:0;}
+.topbar{background:#fff;border-bottom:1px solid #e2e8f0;padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.topbar h1{font-size:18px;font-weight:700;color:#1e293b;display:flex;align-items:center;gap:8px;}
 
-  /* Summary cards */
-  .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 16px; margin-bottom: 24px; }
-  .stat-card { background: #fff; border-radius: var(--radius); padding: 16px 20px; box-shadow: var(--shadow); display: flex; align-items: center; gap: 14px; }
-  .stat-icon { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
-  .stat-icon.yellow { background: var(--yellow-lt); color: var(--yellow); }
-  .stat-icon.green { background: var(--green-lt); color: var(--green); }
-  .stat-icon.red { background: var(--red-lt); color: var(--red); }
-  .stat-icon.blue { background: var(--blue-lt); color: var(--blue); }
-  .stat-label { font-size: 12px; color: var(--gray-500); margin-bottom: 2px; }
-  .stat-value { font-size: 20px; font-weight: 700; color: var(--gray-800); }
-  .stat-sub { font-size: 11px; color: var(--gray-400); margin-top: 1px; }
+/* ── Original app styles (preserved) ── */
+.shell{max-width:860px;margin:0 auto;padding:1.5rem 1.5rem 3rem;}
 
-  /* Table card */
-  .table-card { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
-  .table-header { padding: 16px 20px; border-bottom: 1px solid var(--gray-100); display: flex; align-items: center; justify-content: space-between; }
-  .table-header h3 { font-size: 15px; font-weight: 700; }
-  .table-filters { display: flex; gap: 8px; align-items: center; }
-  .filter-btn { padding: 5px 12px; border-radius: 20px; border: 1px solid var(--gray-200); background: #fff; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--gray-600); transition: all .15s; }
-  .filter-btn.active, .filter-btn:hover { background: var(--yellow); border-color: var(--yellow); color: #fff; }
+.topbar-app{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:2rem;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:11px}
+.brand-icon{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--navy2),#2a4a80);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 8px rgba(26,45,79,.35)}
+.brand-icon svg{width:19px;height:19px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.brand-name{font-size:17px;font-weight:700;letter-spacing:-.4px}
+.brand-sub{font-size:11px;color:var(--tx2);margin-top:1px}
 
-  table { width: 100%; border-collapse: collapse; }
-  th { padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--gray-500); background: var(--gray-50); border-bottom: 1px solid var(--gray-200); white-space: nowrap; }
-  td { padding: 12px 16px; font-size: 13px; border-bottom: 1px solid var(--gray-100); vertical-align: middle; }
-  tr:last-child td { border-bottom: none; }
-  tr:hover td { background: var(--gray-50); }
-  .empty-state { text-align: center; padding: 48px 20px; color: var(--gray-400); }
-  .empty-state i { font-size: 32px; margin-bottom: 10px; display: block; }
-  .empty-state p { font-size: 14px; }
+.tabs{display:flex;gap:2px;background:var(--surface);border:0.5px solid var(--bd);border-radius:var(--r12);padding:3px;box-shadow:var(--sh);flex-wrap:wrap}
+.tab{padding:7px 15px;font-size:12px;font-weight:600;letter-spacing:.1px;border-radius:9px;border:none;background:transparent;color:var(--tx2);cursor:pointer;font-family:inherit;transition:all .18s;white-space:nowrap}
+.tab.on{background:var(--navy2);color:#fff;box-shadow:0 1px 4px rgba(0,0,0,.25)}
 
-  /* Badges */
-  .badge { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; }
-  .badge-active { background: var(--green-lt); color: var(--green); }
-  .badge-cancelled { background: var(--gray-100); color: var(--gray-500); }
-  .badge-autopay-yes { background: var(--blue-lt); color: var(--blue); }
-  .badge-autopay-no { background: var(--red-lt); color: var(--red); }
-  .badge-visa { background: #eff6ff; color: #1d4ed8; }
-  .badge-mc { background: #fef3c7; color: #92400e; }
-  .badge-amex { background: #ecfdf5; color: #065f46; }
-  .badge-discover { background: #fff7ed; color: #9a3412; }
-  .badge-other { background: var(--gray-100); color: var(--gray-600); }
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:10px;margin-bottom:1.5rem}
+.metric{background:var(--surface);border:0.5px solid var(--bd);border-radius:var(--r12);padding:14px 16px;box-shadow:var(--sh)}
+.metric-lbl{font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px}
+.metric-val{font-size:26px;font-weight:700;letter-spacing:-.5px}
+.metric-val.g{color:var(--g)}.metric-val.a{color:var(--a)}.metric-val.navy{color:var(--navy2)}
 
-  /* Action buttons */
-  .action-btns { display: flex; gap: 6px; }
-  .btn-icon { width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--gray-200); background: #fff; color: var(--gray-500); display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; transition: all .15s; }
-  .btn-icon:hover.edit { background: var(--blue-lt); border-color: var(--blue); color: var(--blue); }
-  .btn-icon:hover.del { background: var(--red-lt); border-color: var(--red); color: var(--red); }
+.cblock{background:var(--surface);border:0.5px solid var(--bd);border-radius:var(--r16);padding:16px 18px;margin-bottom:10px;box-shadow:var(--sh)}
+.cblock-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.cavatar{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0;position:relative;overflow:hidden}
+.cavatar::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.2) 0%,transparent 55%);pointer-events:none}
+.cname{font-size:14px;font-weight:700}.cbank{font-size:11px;color:var(--tx2);margin-top:2px}
+.cpct{margin-left:auto;text-align:right}
+.cpct-val{font-size:15px;font-weight:700}
+.cpct-sub{font-size:10px;color:var(--tx3)}
+.pbar-bg{height:5px;background:var(--surface2);border-radius:3px;overflow:hidden}
+.pbar-fill{height:100%;border-radius:3px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+.cbadges{display:flex;gap:5px;margin-top:9px;flex-wrap:wrap;align-items:center}
 
-  /* Modal */
-  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 200; align-items: center; justify-content: center; }
-  .modal-overlay.open { display: flex; }
-  .modal { background: #fff; border-radius: 12px; width: 560px; max-width: 95vw; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.2); }
-  .modal-header { padding: 20px 24px 16px; border-bottom: 1px solid var(--gray-100); display: flex; align-items: center; justify-content: space-between; }
-  .modal-header h3 { font-size: 16px; font-weight: 700; }
-  .modal-close { width: 28px; height: 28px; border-radius: 6px; border: none; background: var(--gray-100); color: var(--gray-500); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; }
-  .modal-close:hover { background: var(--red-lt); color: var(--red); }
-  .modal-body { padding: 20px 24px; }
-  .modal-footer { padding: 16px 24px; border-top: 1px solid var(--gray-100); display: flex; justify-content: flex-end; gap: 10px; }
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
-  .form-row.full { grid-template-columns: 1fr; }
-  .form-group label { display: block; font-size: 12px; font-weight: 700; color: var(--gray-600); margin-bottom: 5px; text-transform: uppercase; letter-spacing: .04em; }
-  .form-group input, .form-group select, .form-group textarea {
-    width: 100%; padding: 9px 12px; border: 1px solid var(--gray-200); border-radius: 6px; font-size: 13px; color: var(--gray-800); background: #fff; outline: none; transition: border-color .15s;
-  }
-  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--yellow); box-shadow: 0 0 0 3px rgba(217,119,6,.1); }
-  .form-group textarea { resize: vertical; min-height: 70px; }
-  .btn-cancel { padding: 9px 18px; border: 1px solid var(--gray-200); background: #fff; color: var(--gray-700); border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
-  .btn-cancel:hover { background: var(--gray-100); }
-  .btn-save { padding: 9px 20px; background: var(--yellow); color: #fff; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
-  .btn-save:hover { background: #b45309; }
+.badge{display:inline-block;font-size:9px;padding:2px 7px;border-radius:20px;font-weight:700;letter-spacing:.2px;white-space:nowrap}
+.badge.mo{background:var(--b-bg);color:var(--b)}
+.badge.qt{background:var(--a-bg);color:var(--a)}
+.badge.sa{background:var(--p-bg);color:var(--p)}
+.badge.yr{background:var(--g-bg);color:var(--g)}
+.badge.cat{background:var(--surface2);color:var(--tx2);font-size:9px}
+.badge.status-done{background:var(--g-bg);color:var(--g)}
+.badge.status-pending{background:var(--a-bg);color:var(--a)}
+.badge.status-waiting{background:var(--surface3);color:var(--tx3)}
 
-  /* Toast */
-  #toast { position: fixed; bottom: 24px; right: 24px; background: var(--gray-800); color: #fff; padding: 12px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; z-index: 999; opacity: 0; transform: translateY(8px); transition: all .3s; pointer-events: none; }
-  #toast.show { opacity: 1; transform: translateY(0); }
+.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px;flex-wrap:wrap}
+.sec-title{font-size:11px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.6px}
+.sec-lbl{font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.6px;margin:14px 0 7px;padding-bottom:5px;border-bottom:0.5px solid var(--bd)}
 
-  @media (max-width: 768px) {
-    #sidebar { transform: translateX(-100%); }
-    #main { margin-left: 0; }
-    .form-row { grid-template-columns: 1fr; }
-  }
+.btn{padding:8px 15px;font-size:12px;font-weight:600;border-radius:var(--r8);border:0.5px solid var(--bd2);background:var(--surface);color:var(--tx);cursor:pointer;font-family:inherit;transition:all .15s;text-decoration:none;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.btn:hover{background:var(--surface2)}.btn:active{transform:scale(.98)}.btn:disabled{opacity:.45;cursor:default;pointer-events:none}
+.btn.primary{background:var(--navy2);color:#fff;border-color:var(--navy2)}.btn.primary:hover{background:var(--navy)}
+.btn.green{background:var(--g);color:#fff;border-color:var(--g)}.btn.green:hover{background:#144a22}
+.btn.gold{background:var(--gold);color:#fff;border-color:var(--gold)}.btn.gold:hover{background:#7a5408}
+.btn.sm{padding:4px 10px;font-size:11px}
+.btn.danger{color:var(--r);border-color:rgba(139,28,28,.2)}.btn.danger:hover{background:var(--r-bg)}
+.btn.ghost{border-color:transparent;background:transparent}.btn.ghost:hover{background:var(--surface2)}
+
+.brow{display:flex;align-items:flex-start;gap:9px;padding:11px 13px;border:0.5px solid var(--bd);border-radius:var(--r12);margin-bottom:6px;background:var(--surface);box-shadow:var(--sh);transition:box-shadow .15s}
+.brow:hover{box-shadow:var(--sh2)}
+.brow.done-row{opacity:.72}
+.bdot{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.binfo{flex:1;min-width:0}
+.bname{font-size:13px;font-weight:600}
+.bmeta{font-size:11px;color:var(--tx2);margin-top:3px;line-height:1.45;display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.bnotes{font-size:11px;color:var(--tx3);margin-top:4px;line-height:1.5;font-style:italic}
+.brow-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;min-width:60px}
+.bval{font-size:14px;font-weight:700}
+.bval.zero{font-size:11px;font-weight:500;color:var(--tx3);font-style:italic}
+.bdue{font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;white-space:nowrap}
+.bdue.ok{background:var(--g-bg);color:var(--g)}
+.bdue.warn{background:var(--a-bg);color:var(--a)}
+.bdue.hot{background:var(--r-bg);color:var(--r)}
+
+.chk-wrap{display:flex;align-items:flex-start;padding-top:3px;flex-shrink:0}
+.chk-wrap input[type=checkbox]{width:17px;height:17px;border-radius:5px;accent-color:var(--g);cursor:pointer}
+
+.filters{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:9px;align-items:center}
+.filter-label{font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.5px;margin-right:2px;flex-shrink:0}
+.fbtn{padding:4px 11px;font-size:11px;font-weight:600;border-radius:20px;border:0.5px solid var(--bd);background:transparent;color:var(--tx2);cursor:pointer;font-family:inherit;transition:all .15s}
+.fbtn:hover{background:var(--surface2)}.fbtn.on{background:var(--navy2);color:#fff;border-color:var(--navy2)}
+
+.info-banner{border-radius:var(--r8);padding:9px 13px;font-size:11px;margin-bottom:12px;display:flex;align-items:flex-start;gap:8px;line-height:1.5}
+.info-banner.blue{background:var(--b-bg);border:0.5px solid rgba(14,58,138,.2);color:var(--b)}
+.info-banner.amber{background:var(--a-bg);border:0.5px solid rgba(122,69,0,.2);color:var(--a)}
+
+.acct-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.acct-card{background:var(--surface);border:0.5px solid var(--bd);border-radius:var(--r16);padding:16px 18px;box-shadow:var(--sh);transition:box-shadow .15s}
+.acct-card:hover{box-shadow:var(--sh2)}
+.acct-head{display:flex;align-items:center;gap:11px;margin-bottom:11px}
+.acct-icon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0;position:relative;overflow:hidden}
+.acct-icon::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.2) 0%,transparent 55%)}
+.acct-name{font-size:13px;font-weight:700}.acct-cat{font-size:10px;color:var(--tx3);margin-top:2px}
+.acct-url a{font-size:12px;color:var(--navy2);font-weight:600;text-decoration:none;word-break:break-all}
+.acct-url a:hover{text-decoration:underline}
+.acct-row{display:flex;gap:8px;margin-top:7px;flex-wrap:wrap;align-items:baseline}
+.acct-row-lbl{font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.4px;flex-shrink:0}
+.acct-row-val{font-size:12px;color:var(--tx2);word-break:break-word}
+.acct-notes{font-size:11px;color:var(--tx3);margin-top:8px;line-height:1.5;font-style:italic;border-top:0.5px solid var(--bd);padding-top:8px}
+.acct-actions{display:flex;gap:6px;margin-top:10px}
+
+.apanel{background:var(--surface);border:0.5px solid var(--bd);border-radius:var(--r16);padding:18px 20px;margin-bottom:12px;box-shadow:var(--sh)}
+.apanel-icon{font-size:22px;margin-bottom:8px;display:block}
+.apanel-title{font-size:14px;font-weight:700;margin-bottom:4px}
+.apanel-desc{font-size:12px;color:var(--tx2);margin-bottom:13px;line-height:1.6}
+.aactions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.divider{border:none;border-top:0.5px solid var(--bd);margin:13px 0}
+.steps{display:flex;flex-direction:column;gap:8px}
+.step{display:flex;gap:10px;align-items:flex-start}
+.stepn{width:20px;height:20px;border-radius:50%;background:var(--navy2);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;margin-top:1px}
+.stept{font-size:12px;line-height:1.55;color:var(--tx2)}.stept strong{font-weight:700;color:var(--tx)}
+
+.ai-box{background:linear-gradient(135deg,var(--gold-lt),var(--surface2));border:0.5px solid rgba(160,112,16,.3);border-radius:var(--r12);padding:14px 16px;margin-top:13px}
+.ai-lbl{font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px}
+.ai-text{font-size:13px;line-height:1.7;white-space:pre-wrap}
+.spinner{display:inline-block;width:16px;height:16px;border:2.5px solid var(--bd2);border-top-color:var(--navy2);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:300;padding:16px}
+.modal{background:var(--surface);border-radius:var(--r20);border:0.5px solid var(--bd);padding:24px;width:100%;max-width:440px;max-height:88vh;overflow-y:auto;box-shadow:var(--sh2)}
+.modal-title{font-size:17px;font-weight:700;letter-spacing:-.3px;margin-bottom:3px}
+.modal-sub{font-size:12px;color:var(--tx2);margin-bottom:18px}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.field input,.field select,.field textarea{width:100%;padding:9px 11px;font-size:13px;border:0.5px solid var(--bd2);border-radius:var(--r8);background:var(--surface);color:var(--tx);font-family:inherit;outline:none;transition:border-color .15s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--navy2);box-shadow:0 0 0 3px rgba(26,45,79,.1)}
+.field textarea{resize:vertical;min-height:70px}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.modal-foot{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;padding-top:14px;border-top:0.5px solid var(--bd)}
+.warn-box{background:var(--a-bg);border:0.5px solid rgba(122,69,0,.25);border-radius:var(--r8);padding:9px 12px;font-size:11px;color:var(--a);margin-bottom:13px;line-height:1.5}
+.empty{text-align:center;padding:3rem 1rem;color:var(--tx3);font-size:13px}
+.color-dot{width:22px;height:22px;border-radius:50%;cursor:pointer;flex-shrink:0}
+
+@media(max-width:768px){
+  #sidebar{transform:translateX(-100%);}
+  #main-wrap{margin-left:0;}
+  .field-row{grid-template-columns:1fr;}
+}
 </style>
 </head>
 <body>
 
+<!-- EA Database Sidebar -->
 <aside id="sidebar">
   <div class="sidebar-logo">
-    <div class="logo-icon"><i class="fa-solid fa-credit-card"></i></div>
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+    </div>
     <div>
       <h2>Credit Cards</h2>
       <span>EA Database</span>
     </div>
   </div>
-  <nav>
+  <div class="sidebar-nav">
     <div class="sidebar-section">Navigation</div>
-    <a class="nav-link" href="../"><i class="fa-solid fa-house"></i> Hub</a>
+    <a class="nav-link" href="../">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+      Hub
+    </a>
     <div class="sidebar-section">Databases</div>
-    <a class="nav-link" href="https://marjorie-automate.github.io/health-dashboard/" target="_blank"><i class="fa-solid fa-heart-pulse"></i> Health</a>
-    <a class="nav-link active"><i class="fa-solid fa-credit-card"></i> Credit Cards</a>
-    <a class="nav-link" href="../travel/"><i class="fa-solid fa-plane"></i> Travel</a>
-  </nav>
+    <a class="nav-link" href="https://marjorie-automate.github.io/health-dashboard/" target="_blank">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      Health
+    </a>
+    <a class="nav-link active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+      Credit Cards
+    </a>
+    <a class="nav-link" href="../travel/">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+      Travel
+    </a>
+  </div>
   <div class="sidebar-footer">
-    <a class="nav-link" onclick="showToast('Settings coming soon')"><i class="fa-solid fa-gear"></i> Settings</a>
+    <a class="nav-link" style="color:#94a3b8;font-size:13px;" onclick="exportJSON()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Backup Data
+    </a>
   </div>
 </aside>
 
-<div id="main">
+<!-- Main -->
+<div id="main-wrap">
   <div class="topbar">
-    <h1><i class="fa-solid fa-credit-card" style="color:var(--yellow);margin-right:8px;font-size:16px;"></i>Credit Cards</h1>
-    <div class="topbar-right">
-      <div class="search-box">
-        <i class="fa-solid fa-magnifying-glass"></i>
-        <input type="text" id="search-input" placeholder="Search cards…" oninput="renderTable()">
-      </div>
-      <button class="btn-primary" onclick="openModal()"><i class="fa-solid fa-plus"></i> Add Card</button>
-    </div>
+    <h1>
+      <svg viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+      Benefits Tracker
+    </h1>
   </div>
 
-  <div class="content">
-    <div class="stats-row">
-      <div class="stat-card">
-        <div class="stat-icon yellow"><i class="fa-solid fa-credit-card"></i></div>
+  <div class="shell">
+    <div class="topbar-app">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><line x1="6" y1="15" x2="10" y2="15"/></svg>
+        </div>
         <div>
-          <div class="stat-label">Total Cards</div>
-          <div class="stat-value" id="sum-total">0</div>
+          <div class="brand-name">Benefits Tracker</div>
+          <div class="brand-sub">5 cards · Redemption monitoring</div>
         </div>
       </div>
-      <div class="stat-card">
-        <div class="stat-icon green"><i class="fa-solid fa-arrow-up"></i></div>
-        <div>
-          <div class="stat-label">Total Credit Limit</div>
-          <div class="stat-value" id="sum-limit">$0</div>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon red"><i class="fa-solid fa-arrow-down"></i></div>
-        <div>
-          <div class="stat-label">Total Balance</div>
-          <div class="stat-value" id="sum-balance">$0</div>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon blue"><i class="fa-solid fa-calendar"></i></div>
-        <div>
-          <div class="stat-label">Next Due Date</div>
-          <div class="stat-value" id="sum-due" style="font-size:15px;">—</div>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon red"><i class="fa-solid fa-triangle-exclamation"></i></div>
-        <div>
-          <div class="stat-label">No Autopay</div>
-          <div class="stat-value" id="sum-noautopay">0</div>
-          <div class="stat-sub">cards need attention</div>
-        </div>
+      <div class="tabs" id="tabs">
+        <button class="tab on" onclick="go('dash')">Dashboard</button>
+        <button class="tab" onclick="go('benefits')">Benefits</button>
+        <button class="tab" onclick="go('cards')">Cards</button>
+        <button class="tab" onclick="go('accounts')">Accounts</button>
+        <button class="tab" onclick="go('auto')">Automate</button>
       </div>
     </div>
-
-    <div class="table-card">
-      <div class="table-header">
-        <h3>All Cards</h3>
-        <div class="table-filters">
-          <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
-          <button class="filter-btn" onclick="setFilter('Active', this)">Active</button>
-          <button class="filter-btn" onclick="setFilter('Cancelled', this)">Cancelled</button>
-        </div>
-      </div>
-      <div style="overflow-x:auto;">
-        <table id="cards-table">
-          <thead>
-            <tr>
-              <th>Card Name</th>
-              <th>Bank</th>
-              <th>Last 4</th>
-              <th>Type</th>
-              <th>Credit Limit</th>
-              <th>Balance</th>
-              <th>Due Date</th>
-              <th>Autopay</th>
-              <th>Rewards</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="cards-tbody"></tbody>
-        </table>
-      </div>
-    </div>
+    <div id="app"></div>
   </div>
 </div>
 
-<!-- Add/Edit Modal -->
-<div class="modal-overlay" id="modal-overlay">
-  <div class="modal">
-    <div class="modal-header">
-      <h3 id="modal-title">Add Credit Card</h3>
-      <button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
-    </div>
-    <div class="modal-body">
-      <div class="form-row">
-        <div class="form-group">
-          <label>Card Name *</label>
-          <input id="f-name" type="text" placeholder="e.g. Chase Sapphire Reserve">
-        </div>
-        <div class="form-group">
-          <label>Bank / Issuer *</label>
-          <input id="f-bank" type="text" placeholder="e.g. Chase">
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Last 4 Digits</label>
-          <input id="f-last4" type="text" maxlength="4" placeholder="1234">
-        </div>
-        <div class="form-group">
-          <label>Card Type</label>
-          <select id="f-type">
-            <option>Visa</option>
-            <option>Mastercard</option>
-            <option>Amex</option>
-            <option>Discover</option>
-            <option>Other</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Credit Limit ($)</label>
-          <input id="f-limit" type="number" placeholder="10000">
-        </div>
-        <div class="form-group">
-          <label>Current Balance ($)</label>
-          <input id="f-balance" type="number" placeholder="0">
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Due Date (day of month)</label>
-          <input id="f-due" type="number" min="1" max="31" placeholder="15">
-        </div>
-        <div class="form-group">
-          <label>Autopay</label>
-          <select id="f-autopay">
-            <option value="Yes">Yes</option>
-            <option value="No">No</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Rewards / Points Program</label>
-          <input id="f-rewards" type="text" placeholder="e.g. Chase Ultimate Rewards">
-        </div>
-        <div class="form-group">
-          <label>Status</label>
-          <select id="f-status">
-            <option>Active</option>
-            <option>Cancelled</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-row full">
-        <div class="form-group">
-          <label>Notes</label>
-          <textarea id="f-notes" placeholder="Any additional notes…"></textarea>
-        </div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
-      <button class="btn-save" onclick="saveCard()">Save Card</button>
-    </div>
-  </div>
-</div>
-
-<div id="toast"></div>
-
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script>
-  let db = null;
-  let cards = [];
-  let editId = null;
-  let filterStatus = 'all';
+const SEED_CARDS=[
+  {id:'amex-plat',name:'Platinum Schwab',bank:'AMEX',color:'#1B4F9C',abbr:'AP'},
+  {id:'amex-bg',  name:'Business Gold',  bank:'AMEX',color:'#A07010',abbr:'AG'},
+  {id:'csr',      name:'Sapphire Reserve',bank:'Chase',color:'#1C2340',abbr:'SR'},
+  {id:'ink',      name:'Ink Preferred',  bank:'Chase',color:'#1A5C35',abbr:'IP'},
+  {id:'csp',      name:'Sapphire Preferred',bank:'Chase',color:'#8B5E10',abbr:'SP'},
+];
 
-  // Init Firebase from localStorage config
-  function initFirebase() {
-    const projectId = localStorage.getItem('ea_firebase_project');
-    const apiKey = localStorage.getItem('ea_firebase_key');
-    const authDomain = localStorage.getItem('ea_firebase_auth_domain') || `${projectId}.firebaseapp.com`;
-    if (!projectId || !apiKey) return false;
-    try {
-      if (!firebase.apps.length) {
-        firebase.initializeApp({ apiKey, authDomain, projectId });
-      }
-      db = firebase.firestore();
-      return true;
-    } catch(e) { return false; }
+const SEED_BENEFITS=[
+  {id:'ag-biz',  cardId:'amex-bg',  name:'Business Credit',       value:20,  cycle:'monthly',     cat:'Business', redeemed:false,
+   notes:'Use on FedEx, Grubhub, Staples, Office Depot. Enroll through AMEX account. Redeem Business Credit (Amex Gold).'},
+  {id:'ag-wm',   cardId:'amex-bg',  name:'Walmart+ Membership',   value:155, cycle:'yearly',      cat:'Shopping', redeemed:false,
+   notes:'Covers full Walmart+ annual membership. Enroll via AMEX Business account → Benefits. Cannot receive code through OpenPhone — use personal number.'},
+  {id:'ap-uber', cardId:'amex-plat', name:'Uber Cash',            value:15,  cycle:'monthly',     cat:'Transport', redeemed:false,
+   notes:'$15/mo Uber Cash ($20 in December). Use for rides or pick up from fast food (Chipotle, Starbucks, 7-Eleven, etc.). Loads automatically to linked AMEX in Uber app.'},
+  {id:'ap-stream',cardId:'amex-plat',name:'Streaming Credit',     value:20,  cycle:'monthly',     cat:'Entertainment', redeemed:false,
+   notes:'Disney+, ESPN+, Hulu, Paramount+, Peacock, YouTube TV, YouTube Premium, NYT, WSJ. Enroll eligible subscription via AMEX account first.'},
+  {id:'ap-equinox',cardId:'amex-plat',name:'Equinox Credit',      value:25,  cycle:'monthly',     cat:'Health',    redeemed:false,
+   notes:'Covers Equinox gym membership or Equinox+ app subscription. Must enroll via AMEX benefits page first.'},
+  {id:'ap-saks1',cardId:'amex-plat', name:'Saks Fifth Ave (Jan–Jun)', value:50, cycle:'semi-annual', cat:'Shopping', redeemed:false,
+   notes:'$50 credit Jan 1 – Jun 30. Use on saks.com or in-store. Can also use to purchase gift cards on the website.'},
+  {id:'ap-saks2',cardId:'amex-plat', name:'Saks Fifth Ave (Jul–Dec)', value:50, cycle:'semi-annual', cat:'Shopping', redeemed:false,
+   notes:'$50 credit Jul 1 – Dec 31. Use on saks.com or in-store. Can also use to purchase gift cards on the website.'},
+  {id:'ap-hotel',cardId:'amex-plat', name:'AMEX Fine Hotels & Resorts', value:200, cycle:'yearly', cat:'Travel',   redeemed:false,
+   notes:'Book through AMEX Travel Asia Pacific portal. 2-night minimum stay, daily breakfast for 2, room upgrade, $100 on-property experience credit.'},
+  {id:'ap-oura', cardId:'amex-plat', name:'Oura Ring + Panera Sip Club', value:0, cycle:'yearly', cat:'Health',   redeemed:false,
+   notes:'Buy Oura Ring via benefit. Note: $5.99/month app subscription is NOT included. Also covers Panera Unlimited Sip Club.'},
+  {id:'ap-clear',cardId:'amex-plat', name:'CLEAR Plus',           value:189, cycle:'yearly',      cat:'Travel',   redeemed:false,
+   notes:'Covers full CLEAR Plus annual membership. Skip airline security lines. Bundle option available. Enroll at clearme.com and pay with AMEX Platinum.'},
+  {id:'ap-airline',cardId:'amex-plat',name:'Airline Fee Credit',  value:200, cycle:'yearly',      cat:'Travel',   redeemed:false,
+   notes:'Choose and enroll one airline via AMEX account. Covers incidental fees: baggage, seat upgrades, in-flight entertainment.'},
+  {id:'ap-global',cardId:'amex-plat', name:'Global Entry / TSA PreCheck', value:100, cycle:'yearly', cat:'Travel', redeemed:false,
+   notes:'$100 credit every 4.5 years. Only redeem when membership is expiring. Apply at ttp.cbp.dhs.gov. Activation date: 12/25.'},
+  {id:'ap-wm',   cardId:'amex-plat', name:'Walmart+ Membership',  value:155, cycle:'yearly',      cat:'Shopping', redeemed:false,
+   notes:'Covers full Walmart+ annual membership. Enroll via AMEX personal account → Benefits → Walmart+.'},
+  {id:'ap-lounge',cardId:'amex-plat',name:'Priority Pass + Centurion Lounge', value:0, cycle:'yearly', cat:'Travel', redeemed:false,
+   notes:'Activate Priority Pass via AMEX account. Centurion Lounge auto-enabled. Unlimited visits + guests. IHG Platinum Elite status also available.'},
+  {id:'ink-dash',cardId:'ink',       name:'DashPass + DoorDash Credit', value:0, cycle:'monthly', cat:'Dining',   redeemed:false,
+   notes:'Subscribe to DashPass for minimum 1 year: $0 delivery fees. $5 credit for 1 random order + $10 off each month on non-restaurant DoorDash orders.'},
+  {id:'csr-lyft',cardId:'csr',       name:'Lyft Discount',         value:15,  cycle:'monthly',     cat:'Transport', redeemed:false,
+   notes:'Link CSR to Lyft app for the discount. Also includes no surge pricing. Credit auto-applies to Lyft Pink rides.'},
+  {id:'csr-pelo',cardId:'csr',       name:'Peloton Credit',        value:0,   cycle:'monthly',     cat:'Health',   redeemed:false,
+   notes:'Non-monetary / complimentary Peloton membership access. Use as the need arises.'},
+  {id:'csr-lulu',cardId:'csr',       name:'Lululemon Credit',      value:0,   cycle:'quarterly',   cat:'Shopping', redeemed:false,
+   notes:'Use online. Combine with Rakuten for a larger discount. Can use toward gift cards.'},
+  {id:'csr-resy',cardId:'csr',       name:'Resy Dining Access',    value:0,   cycle:'monthly',     cat:'Dining',   redeemed:false,
+   notes:'Use CSR card at any restaurant listed on Resy. Also use OpenTable Chase Dining link for $10 instant credit per transaction on non-restaurant orders.'},
+  {id:'csr-travel',cardId:'csr',     name:'Annual Travel Credit',  value:300, cycle:'yearly',      cat:'Travel',   redeemed:false,
+   notes:'$300/yr automatically applied to first travel purchases (airlines, hotels, Lyft, tolls, transit, parking). No action needed.'},
+  {id:'csr-sw',  cardId:'csr',       name:'Southwest / Airlines',  value:0,   cycle:'yearly',      cat:'Travel',   redeemed:false,
+   notes:'Track spending toward Southwest companion pass (75k points threshold). Transfer Chase points to Southwest.'},
+  {id:'csr-lounge',cardId:'csr',     name:'Priority Pass Lounge',  value:0,   cycle:'yearly',      cat:'Travel',   redeemed:false,
+   notes:'Activate via Chase benefits portal. Note: except CIR Lounge. Unlimited guest visits included.'},
+  {id:'csr-global',cardId:'csr',     name:'Global Entry / TSA PreCheck', value:100, cycle:'yearly', cat:'Travel',  redeemed:false,
+   notes:'$100 credit every 4 years. Apply or renew at ttp.cbp.dhs.gov and pay with CSR.'},
+  {id:'csp-dining',cardId:'csp',     name:'Chase Dining Credit',   value:10,  cycle:'monthly',     cat:'Dining',   redeemed:false,
+   notes:'$10/mo at Chase Dining via DoorDash or Tock/OpenTable. Use opentable.com/chasedining/.'},
+  {id:'csp-stubbub',cardId:'csp',    name:'StubHub / Viagogo',     value:0,   cycle:'yearly',      cat:'Entertainment', redeemed:false,
+   notes:'Must buy tickets for events and concerts through StubHub or Viagogo. Use as need arises.'},
+  {id:'csp-edit',cardId:'csp',       name:'The Edit Hotel Credit', value:0,   cycle:'yearly',      cat:'Travel',   redeemed:false,
+   notes:'Book through "The Edit" hotel collection via Chase Travel portal. Use when booking hotels.'},
+  {id:'csp-ihg', cardId:'csp',       name:'IHG Platinum Elite Status', value:0, cycle:'yearly',   cat:'Travel',   redeemed:false,
+   notes:'Complimentary IHG Rewards Platinum Elite status. Activate via Chase benefits. Room upgrades, bonus points, lounge access.'},
+  {id:'csp-hotel',cardId:'csp',      name:'Annual Hotel Credit',   value:50,  cycle:'yearly',      cat:'Travel',   redeemed:false,
+   notes:'$50/yr on hotels booked via Chase Travel portal (chase.com/travel). Automatically applied at checkout.'},
+  {id:'csp-anniv',cardId:'csp',      name:'Anniversary Bonus Points', value:0, cycle:'yearly',     cat:'Rewards',  redeemed:false,
+   notes:'Annual points bonus upon account anniversary. Transfer to partners: airlines, hotels (Hyatt, IHG, Southwest, etc.).'},
+];
+
+const SEED_ACCOUNTS=[
+  {id:'acc1', name:'AMEX Personal Account',      url:'https://americanexpress.com',                    cardId:'amex-plat', cat:'Card Portal',    username:'', notes:'Manage Platinum Schwab benefits, enrollment, credit activation, airline selection, Uber Cash, streaming credits.'},
+  {id:'acc2', name:'AMEX Business Account',      url:'https://americanexpress.com/business',           cardId:'amex-bg',   cat:'Card Portal',    username:'', notes:'Manage Business Gold credits. Use personal phone number (not OpenPhone) for verification codes.'},
+  {id:'acc3', name:'Chase Online Account',        url:'https://chase.com',                             cardId:'csr',       cat:'Card Portal',    username:'', notes:'Manage CSR, Ink Preferred, and Sapphire Preferred. Activate DashPass, Priority Pass, and all Chase benefits here.'},
+  {id:'acc4', name:'Uber / Uber Cash',            url:'https://uber.com',                              cardId:'amex-plat', cat:'Transport',      username:'', notes:'$15/mo Uber Cash. Loads automatically to linked AMEX Platinum in app. Use for rides or fast food pickup. $20 in December.'},
+  {id:'acc5', name:'DoorDash / DashPass',         url:'https://doordash.com',                          cardId:'ink',       cat:'Dining',         username:'', notes:'Chase Ink: DashPass subscription. $5 credit per order + $10 off monthly on non-restaurant orders.'},
+  {id:'acc6', name:'Saks Fifth Avenue',           url:'https://saks.com',                              cardId:'amex-plat', cat:'Shopping',       username:'', notes:'$50 Jan–Jun + $50 Jul–Dec. Shop on saks.com or in-store. Can purchase gift cards online.'},
+  {id:'acc7', name:'Equinox / Equinox+',          url:'https://equinoxplus.com',                       cardId:'amex-plat', cat:'Health',         username:'', notes:'$25/mo credit. Enroll via AMEX benefits page first.'},
+  {id:'acc8', name:'Walmart+',                    url:'https://walmart.com/plus',                      cardId:'amex-plat', cat:'Shopping',       username:'', notes:'$155/yr. Enroll via AMEX account → Benefits → Walmart+.'},
+  {id:'acc9', name:'CLEAR Plus',                  url:'https://clearme.com',                           cardId:'amex-plat', cat:'Travel',         username:'', notes:'$189/yr. Enroll at clearme.com and pay with AMEX Platinum.'},
+  {id:'acc10',name:'AMEX Fine Hotels & Resorts',  url:'https://americanexpress.com/en-us/travel/luxury-asia-pacific', cardId:'amex-plat', cat:'Travel', username:'', notes:'Book through Asia Pacific portal for $200 credit + breakfast for 2 + room upgrade + $100 on-property credit.'},
+  {id:'acc11',name:'Oura Ring',                   url:'https://ouraring.com',                          cardId:'amex-plat', cat:'Health',         username:'', notes:'Buy Oura Ring via AMEX benefit. Note: $5.99/month app subscription is NOT included.'},
+  {id:'acc12',name:'Panera Sip Club',             url:'https://panerabread.com',                       cardId:'amex-plat', cat:'Dining',         username:'', notes:'Unlimited Sip Club subscription. Check AMEX account for current eligibility.'},
+  {id:'acc13',name:'Lyft',                        url:'https://lyft.com',                              cardId:'csr',       cat:'Transport',      username:'', notes:'Link CSR in the Lyft app. Monthly credit + no surge pricing.'},
+  {id:'acc14',name:'Resy Dining',                 url:'https://resy.com',                              cardId:'csr',       cat:'Dining',         username:'', notes:'Use CSR card at any restaurant listed on Resy.'},
+  {id:'acc15',name:'Chase Dining / OpenTable',    url:'https://opentable.com/chasedining',             cardId:'csp',       cat:'Dining',         username:'', notes:'$10/mo dining credit via Chase Dining.'},
+  {id:'acc16',name:'Chase Travel Portal',         url:'https://chase.com/travel',                      cardId:'csp',       cat:'Travel',         username:'', notes:'Book hotels here for CSP $50/yr hotel credit. Also use for The Edit hotel bookings.'},
+  {id:'acc17',name:'Priority Pass',               url:'https://prioritypass.com',                      cardId:'csr',       cat:'Travel',         username:'', notes:'Activate via Chase or AMEX benefits portal. NOT valid at CIR Lounge.'},
+  {id:'acc18',name:'Global Entry (CBP)',          url:'https://ttp.cbp.dhs.gov',                       cardId:'amex-plat', cat:'Travel',         username:'', notes:'Apply or renew Global Entry. AMEX Platinum ($100, every 4.5 yrs) or CSR ($100, every 4 yrs).'},
+  {id:'acc19',name:'IHG Rewards',                 url:'https://ihg.com',                               cardId:'csp',       cat:'Travel',         username:'', notes:'Complimentary IHG Platinum Elite status via CSP. Activate via Chase benefits.'},
+  {id:'acc20',name:'StubHub / Viagogo',           url:'https://stubhub.com',                           cardId:'csp',       cat:'Entertainment',  username:'', notes:'Buy tickets for events/concerts through StubHub or Viagogo.'},
+  {id:'acc21',name:'The Edit Hotels (Chase)',     url:'https://theedithotels.com',                     cardId:'csp',       cat:'Travel',         username:'', notes:'Book via The Edit collection through Chase Travel. Must book through The Edit link.'},
+  {id:'acc22',name:'Southwest Airlines',          url:'https://southwest.com',                         cardId:'csr',       cat:'Travel',         username:'', notes:'Track spending toward companion pass (75k points threshold).'},
+  {id:'acc23',name:'Google Workspace / One',      url:'https://workspace.google.com',                  cardId:'csp',       cat:'Business',       username:'', notes:'Google Workspace or Google One access via CSP benefits. Activate via Chase.'},
+  {id:'acc24',name:'Rakuten',                     url:'https://rakuten.com',                           cardId:'csr',       cat:'Shopping',       username:'', notes:'Use Rakuten portal before shopping at Lululemon for larger cashback discount.'},
+  {id:'acc25',name:'Lululemon',                   url:'https://shop.lululemon.com',                    cardId:'csr',       cat:'Shopping',       username:'', notes:'Use CSR for quarterly Lululemon credit. Go through Rakuten first for extra discount.'},
+];
+
+const KEY='ccbt_v4';
+let S={tab:'dash',cards:[],benefits:[],accounts:[],bFilter:'all',bCard:'all',aFilter:'all',aCard:'all',modal:null,aiLoading:false,aiText:''};
+
+function save(){try{localStorage.setItem(KEY,JSON.stringify({cards:S.cards,benefits:S.benefits,accounts:S.accounts}));}catch(e){}}
+function load(){
+  try{const raw=localStorage.getItem(KEY);if(raw){const p=JSON.parse(raw);S.cards=p.cards||[];S.benefits=p.benefits||[];S.accounts=p.accounts||[];}}catch(e){}
+  if(!S.cards.length){S.cards=clone(SEED_CARDS);S.benefits=clone(SEED_BENEFITS);S.accounts=clone(SEED_ACCOUNTS);save();}
+}
+function clone(x){return JSON.parse(JSON.stringify(x));}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2);}
+function cardById(id){return S.cards.find(c=>c.id===id);}
+function cardName(id){const c=cardById(id);return c?`${c.bank} ${c.name}`:'Unknown';}
+function cardColor(id){const c=cardById(id);return c?c.color:'#888';}
+function cardAbbr(id){const c=cardById(id);return c?c.abbr:'??';}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function daysLeft(cycle){
+  const now=new Date();let end;
+  if(cycle==='monthly') end=new Date(now.getFullYear(),now.getMonth()+1,0);
+  else if(cycle==='quarterly'){const q=Math.floor(now.getMonth()/3);end=new Date(now.getFullYear(),(q+1)*3,0);}
+  else if(cycle==='semi-annual') end=now.getMonth()<6?new Date(now.getFullYear(),5,30):new Date(now.getFullYear(),11,31);
+  else end=new Date(now.getFullYear(),11,31);
+  return Math.max(1,Math.ceil((end-now)/86400000));
+}
+function cycleEnd(cycle){
+  const now=new Date();
+  if(cycle==='monthly') return new Date(now.getFullYear(),now.getMonth()+1,0);
+  if(cycle==='quarterly'){const q=Math.floor(now.getMonth()/3);return new Date(now.getFullYear(),(q+1)*3,0);}
+  if(cycle==='semi-annual') return now.getMonth()<6?new Date(now.getFullYear(),5,30):new Date(now.getFullYear(),11,31);
+  return new Date(now.getFullYear(),11,31);
+}
+function periodLabel(cycle){
+  const now=new Date();
+  if(cycle==='monthly') return now.toLocaleString('default',{month:'short',year:'numeric'});
+  if(cycle==='quarterly'){const q=Math.floor(now.getMonth()/3)+1;return `Q${q} ${now.getFullYear()}`;}
+  if(cycle==='semi-annual') return now.getMonth()<6?`Jan–Jun ${now.getFullYear()}`:`Jul–Dec ${now.getFullYear()}`;
+  return String(now.getFullYear());
+}
+function cycleBadge(c){if(c==='monthly')return'mo';if(c==='quarterly')return'qt';if(c==='semi-annual')return'sa';return'yr';}
+function cycleLabel(c){if(c==='semi-annual')return'Semi-Annual';return c.charAt(0).toUpperCase()+c.slice(1);}
+function dueClass(d){return d<=7?'hot':d<=21?'warn':'ok';}
+function stats(){
+  const mon=S.benefits.filter(b=>b.value>0);
+  const total=mon.reduce((s,b)=>s+b.value,0);
+  const redeemed=mon.filter(b=>b.redeemed).reduce((s,b)=>s+b.value,0);
+  return{total,redeemed,pending:total-redeemed,pct:total?Math.round(redeemed/total*100):0};
+}
+
+function go(tab){S.tab=tab;render();}
+function setBFilter(f){S.bFilter=f;render();}
+function setBCard(f){S.bCard=f;render();}
+function setAFilter(f){S.aFilter=f;render();}
+function setACard(f){S.aCard=f;render();}
+function closeModal(){S.modal=null;render();}
+function toggleRedeem(id){const b=S.benefits.find(x=>x.id===id);if(b){b.redeemed=!b.redeemed;save();render();}}
+function deleteCard(id){if(!confirm('Delete this card and all its benefits?'))return;S.cards=S.cards.filter(x=>x.id!==id);S.benefits=S.benefits.filter(x=>x.cardId!==id);save();render();}
+function deleteBenefit(id){if(!confirm('Remove this benefit?'))return;S.benefits=S.benefits.filter(x=>x.id!==id);save();render();}
+function deleteAccount(id){if(!confirm('Remove this account?'))return;S.accounts=S.accounts.filter(x=>x.id!==id);save();render();}
+function addCard(){S.modal={type:'card',data:null};render();}
+function editCard(id){S.modal={type:'card',data:S.cards.find(c=>c.id===id)||null};render();}
+function addBenefit(){S.modal={type:'benefit',data:null};render();}
+function editBenefit(id){S.modal={type:'benefit',data:S.benefits.find(b=>b.id===id)||null};render();}
+function addAccount(){S.modal={type:'account',data:null};render();}
+function editAccount(id){S.modal={type:'account',data:S.accounts.find(a=>a.id===id)||null};render();}
+
+async function enableNotif(){
+  if(!('Notification'in window)){alert('Notifications not supported.');return;}
+  const p=await Notification.requestPermission();
+  if(p==='granted'){localStorage.setItem('ccbt_notif','1');fireNotif();render();}
+  else alert('Permission denied.');
+}
+function fireNotif(){S.benefits.filter(b=>!b.redeemed&&daysLeft(b.cycle)<=7).forEach(b=>{new Notification('Benefit expiring soon!',{body:`${b.name} (${cardName(b.cardId)}) — ${daysLeft(b.cycle)}d left${b.value?' · $'+b.value:''}`});});}
+function checkNotif(){if(localStorage.getItem('ccbt_notif')==='1'&&Notification.permission==='granted')fireNotif();}
+function notifState(){if(!('Notification'in window))return'unsupported';return(localStorage.getItem('ccbt_notif')==='1'&&Notification.permission==='granted')?'on':'off';}
+
+function p2(n){return String(n).padStart(2,'0');}
+function icsDate(d){return `${d.getFullYear()}${p2(d.getMonth()+1)}${p2(d.getDate())}`;}
+function exportCal(){
+  const pending=S.benefits.filter(b=>!b.redeemed);
+  if(!pending.length){alert('No pending benefits to export.');return;}
+  const lines=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//CC Benefits Tracker//EN','CALSCALE:GREGORIAN','METHOD:PUBLISH','X-WR-CALNAME:Credit Card Benefits'];
+  pending.forEach(b=>{
+    const end=cycleEnd(b.cycle);const warn=new Date(end);warn.setDate(warn.getDate()-3);
+    const desc=[`Card: ${cardName(b.cardId)}`,b.value?`Value: $${b.value}`:'',`Cycle: ${b.cycle}`,b.notes?`Tip: ${b.notes.slice(0,200)}`:''].filter(Boolean).join('\\n');
+    lines.push('BEGIN:VEVENT',`UID:ccbt-${b.id}-warn@tracker`,`DTSTART;VALUE=DATE:${icsDate(warn)}`,`DTEND;VALUE=DATE:${icsDate(warn)}`,`SUMMARY:⚠️ 3 days left – ${b.name} (${cardName(b.cardId)})`,`DESCRIPTION:${desc}`,'BEGIN:VALARM','TRIGGER:-PT0S','ACTION:DISPLAY',`DESCRIPTION:3 days left – ${b.name}`,'END:VALARM','END:VEVENT');
+    lines.push('BEGIN:VEVENT',`UID:ccbt-${b.id}-end@tracker`,`DTSTART;VALUE=DATE:${icsDate(end)}`,`DTEND;VALUE=DATE:${icsDate(end)}`,`SUMMARY:🚨 LAST DAY – ${b.name} (${cardName(b.cardId)})`,`DESCRIPTION:${desc}`,'BEGIN:VALARM','TRIGGER:-PT0S','ACTION:DISPLAY',`DESCRIPTION:Last day to redeem ${b.name}!`,'END:VALARM','END:VEVENT');
+  });
+  lines.push('END:VCALENDAR');
+  dl(lines.join('\r\n'),'cc-benefits.ics','text/calendar;charset=utf-8');
+}
+function dl(content,filename,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type}));a.download=filename;document.body.appendChild(a);a.click();document.body.removeChild(a);}
+function exportJSON(){dl(JSON.stringify({cards:S.cards,benefits:S.benefits,accounts:S.accounts},null,2),'cc-tracker-backup.json','application/json');}
+function importJSON(){
+  const inp=document.createElement('input');inp.type='file';inp.accept='.json';
+  inp.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const p=JSON.parse(ev.target.result);if(!p.cards||!p.benefits)throw 0;if(!confirm(`Import ${p.cards.length} cards and ${p.benefits.length} benefits?`))return;S.cards=p.cards;S.benefits=p.benefits;S.accounts=p.accounts||[];save();render();}catch{alert('Invalid backup file.');}};r.readAsText(f);};inp.click();
+}
+function resetData(){if(!confirm('Reset ALL data to defaults?'))return;S.cards=clone(SEED_CARDS);S.benefits=clone(SEED_BENEFITS);S.accounts=clone(SEED_ACCOUNTS);save();render();}
+
+async function getAI(){
+  S.aiLoading=true;S.aiText='';render();
+  const st=stats();
+  const list=S.benefits.filter(b=>!b.redeemed&&b.value>0).sort((a,b)=>daysLeft(a.cycle)-daysLeft(b.cycle)).map(b=>`- ${cardName(b.cardId)}: ${b.name} ($${b.value} ${b.cycle}, ${daysLeft(b.cycle)}d left)`).join('\n');
+  const prompt=`My unredeemed credit card benefits:\n${list}\n\nRedeemed: $${st.redeemed}/$${st.total}.\n\nGive 4 specific, actionable tips prioritized by urgency. Numbered list, 1-2 sentences each. Be direct about HOW to redeem.`;
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:700,messages:[{role:'user',content:prompt}]})});
+    const d=await res.json();S.aiText=d.content?.[0]?.text||'No response.';
+  }catch{S.aiText='Could not connect. Try again.';}
+  S.aiLoading=false;render();
+}
+
+function saveCard(existId){
+  const name=document.getElementById('f-name').value.trim();
+  const bank=document.getElementById('f-bank').value.trim();
+  const abbr=document.getElementById('f-abbr').value.trim().slice(0,3).toUpperCase();
+  const color=document.getElementById('f-color').value;
+  if(!name||!bank){alert('Name and bank required.');return;}
+  if(existId){const c=S.cards.find(x=>x.id===existId);if(c){c.name=name;c.bank=bank;c.abbr=abbr||bank.slice(0,2);c.color=color;}}
+  else S.cards.push({id:uid(),name,bank,abbr:abbr||bank.slice(0,2),color});
+  save();closeModal();
+}
+function saveBenefit(existId){
+  const cardId=document.getElementById('f-card').value;
+  const name=document.getElementById('f-bname').value.trim();
+  const value=parseFloat(document.getElementById('f-val').value)||0;
+  const cycle=document.getElementById('f-cycle').value;
+  const cat=document.getElementById('f-cat').value;
+  const notes=document.getElementById('f-notes').value.trim();
+  if(!name){alert('Benefit name required.');return;}
+  if(existId){const b=S.benefits.find(x=>x.id===existId);if(b){b.cardId=cardId;b.name=name;b.value=value;b.cycle=cycle;b.cat=cat;b.notes=notes;}}
+  else S.benefits.push({id:uid(),cardId,name,value,cycle,cat,notes,redeemed:false});
+  save();closeModal();
+}
+function saveAccount(existId){
+  const name=document.getElementById('a-name').value.trim();
+  const url=document.getElementById('a-url').value.trim();
+  const cardId=document.getElementById('a-card').value;
+  const cat=document.getElementById('a-cat').value;
+  const username=document.getElementById('a-user').value.trim();
+  const notes=document.getElementById('a-notes').value.trim();
+  if(!name){alert('Account name required.');return;}
+  if(existId){const a=S.accounts.find(x=>x.id===existId);if(a){a.name=name;a.url=url;a.cardId=cardId;a.cat=cat;a.username=username;a.notes=notes;}}
+  else S.accounts.push({id:uid(),name,url,cardId,cat,username,notes});
+  save();closeModal();
+}
+
+function renderDash(){
+  const st=stats();
+  const urgent=S.benefits.filter(b=>!b.redeemed&&b.value>0).sort((a,b)=>daysLeft(a.cycle)-daysLeft(b.cycle)).slice(0,8);
+  return `
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">Total Annual Value</div><div class="metric-val navy">$${st.total.toLocaleString()}</div></div>
+    <div class="metric"><div class="metric-lbl">Redeemed</div><div class="metric-val g">$${st.redeemed.toLocaleString()}</div></div>
+    <div class="metric"><div class="metric-lbl">Still Available</div><div class="metric-val a">$${st.pending.toLocaleString()}</div></div>
+    <div class="metric"><div class="metric-lbl">Redemption Rate</div><div class="metric-val">${st.pct}%</div></div>
+  </div>
+  ${S.cards.map(card=>{
+    const cb=S.benefits.filter(b=>b.cardId===card.id);
+    const tot=cb.filter(b=>b.value>0).reduce((s,b)=>s+b.value,0);
+    const don=cb.filter(b=>b.redeemed&&b.value>0).reduce((s,b)=>s+b.value,0);
+    const pct=tot?Math.round(don/tot*100):0;
+    return `<div class="cblock">
+      <div class="cblock-head">
+        <div class="cavatar" style="background:${card.color}">${card.abbr}</div>
+        <div style="flex:1"><div class="cname">${esc(card.name)}</div><div class="cbank">${esc(card.bank)}</div></div>
+        <div class="cpct"><div class="cpct-val">$${don.toLocaleString()} <span style="font-size:12px;font-weight:400;color:var(--tx2)">/ $${tot.toLocaleString()}</span></div><div class="cpct-sub">${pct}% redeemed</div></div>
+      </div>
+      <div class="pbar-bg"><div class="pbar-fill" style="width:${pct}%;background:${card.color}"></div></div>
+      <div class="cbadges">
+        ${['monthly','quarterly','semi-annual','yearly'].map(cy=>{const r=cb.filter(b=>b.cycle===cy);if(!r.length)return'';const d=r.filter(b=>b.redeemed).length;return`<span class="badge ${cycleBadge(cy)}">${cycleLabel(cy)}: ${d}/${r.length}</span>`;}).join('')}
+      </div>
+    </div>`;
+  }).join('')}
+  <div class="sec-head" style="margin-top:6px">
+    <div class="sec-title">Action needed — most urgent</div>
+    <button class="btn sm" onclick="getAI()">✦ AI tips</button>
+  </div>
+  ${urgent.length?urgent.map(b=>{const d=daysLeft(b.cycle);return`<div class="brow">
+    <div class="bdot" style="background:${cardColor(b.cardId)}"></div>
+    <div class="binfo"><div class="bname">${esc(b.name)}</div><div class="bmeta">${cardName(b.cardId)} <span class="badge ${cycleBadge(b.cycle)}">${cycleLabel(b.cycle)}</span></div></div>
+    <div class="brow-right"><div class="bval">$${b.value}</div><span class="bdue ${dueClass(d)}">${d}d left</span></div>
+    <div class="chk-wrap"><input type="checkbox" ${b.redeemed?'checked':''} onchange="toggleRedeem('${b.id}')"></div>
+  </div>`}).join(''):'<div class="empty">🎉 All caught up — no urgent monetary benefits!</div>'}
+  ${S.aiText||S.aiLoading?`<div class="ai-box"><div class="ai-lbl">AI Insights</div>${S.aiLoading?'<div class="spinner"></div>':`<div class="ai-text">${esc(S.aiText)}</div>`}</div>`:''}`;
+}
+
+function renderBenefits(){
+  let list=S.benefits;
+  if(S.bCard!=='all') list=list.filter(b=>b.cardId===S.bCard);
+  if(S.bFilter!=='all') list=list.filter(b=>b.cycle===S.bFilter);
+  const pending=list.filter(b=>!b.redeemed).sort((a,b)=>daysLeft(a.cycle)-daysLeft(b.cycle));
+  const done=list.filter(b=>b.redeemed);
+  function row(b){
+    const d=daysLeft(b.cycle);
+    return `<div class="brow${b.redeemed?' done-row':''}">
+      <div class="bdot" style="background:${cardColor(b.cardId)}"></div>
+      <div class="binfo">
+        <div class="bname">${esc(b.name)}</div>
+        <div class="bmeta"><span>${cardName(b.cardId)}</span><span class="badge ${cycleBadge(b.cycle)}">${cycleLabel(b.cycle)}</span><span class="badge cat">${esc(b.cat||'')}</span><span style="color:var(--tx3);font-size:10px">${periodLabel(b.cycle)}</span></div>
+        ${b.notes?`<div class="bnotes">${esc(b.notes)}</div>`:''}
+      </div>
+      <div class="brow-right">
+        ${b.value?`<div class="bval">$${b.value}</div>`:`<div class="bval zero">perk</div>`}
+        <span class="bdue ${dueClass(d)}">${d}d</span>
+        <div style="display:flex;gap:4px;margin-top:2px">
+          <button class="btn sm ghost" onclick="editBenefit('${b.id}')">Edit</button>
+          <button class="btn sm danger ghost" onclick="deleteBenefit('${b.id}')">×</button>
+        </div>
+      </div>
+      <div class="chk-wrap"><input type="checkbox" ${b.redeemed?'checked':''} onchange="toggleRedeem('${b.id}')"></div>
+    </div>`;
   }
+  return `
+  <div class="filters">
+    <span class="filter-label">Card</span>
+    <button class="fbtn ${S.bCard==='all'?'on':''}" onclick="setBCard('all')">All</button>
+    ${S.cards.map(c=>`<button class="fbtn ${S.bCard===c.id?'on':''}" onclick="setBCard('${c.id}')">${c.abbr} ${esc(c.name)}</button>`).join('')}
+  </div>
+  <div class="filters">
+    <span class="filter-label">Cycle</span>
+    ${['all','monthly','quarterly','semi-annual','yearly'].map(f=>`<button class="fbtn ${S.bFilter===f?'on':''}" onclick="setBFilter('${f}')">${f==='all'?'All':cycleLabel(f)}</button>`).join('')}
+    <button class="btn sm primary" style="margin-left:auto" onclick="addBenefit()">+ Add</button>
+  </div>
+  <div class="info-banner blue"><span>✅</span><span><strong>Check the box</strong> when you've redeemed a benefit. Progress saves automatically in your browser.</span></div>
+  ${pending.length?`<div class="sec-lbl">Pending · ${pending.length}</div>${pending.map(row).join('')}`:''}
+  ${done.length?`<div class="sec-lbl">Redeemed · ${done.length}</div>${done.map(row).join('')}`:''}
+  ${!list.length?'<div class="empty">No benefits match your filters.</div>':''}`;
+}
 
-  async function loadCards() {
-    if (!initFirebase()) { cards = JSON.parse(localStorage.getItem('ea_cards') || '[]'); renderTable(); updateStats(); return; }
-    try {
-      const snap = await db.collection('creditCards').get();
-      cards = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    } catch(e) { cards = JSON.parse(localStorage.getItem('ea_cards') || '[]'); }
-    renderTable();
-    updateStats();
+function renderCards(){
+  return `
+  <div class="sec-head"><div class="sec-title">My cards (${S.cards.length})</div><button class="btn sm primary" onclick="addCard()">+ Add card</button></div>
+  ${S.cards.map(card=>{
+    const cb=S.benefits.filter(b=>b.cardId===card.id);
+    const tot=cb.filter(b=>b.value>0).reduce((s,b)=>s+b.value,0);
+    const don=cb.filter(b=>b.redeemed&&b.value>0).reduce((s,b)=>s+b.value,0);
+    const pct=tot?Math.round(don/tot*100):0;
+    return `<div class="cblock">
+      <div class="cblock-head">
+        <div class="cavatar" style="background:${card.color};width:48px;height:48px;border-radius:12px;font-size:13px">${card.abbr}</div>
+        <div style="flex:1"><div class="cname" style="font-size:15px">${esc(card.name)}</div><div class="cbank">${esc(card.bank)} · ${cb.length} benefits · $${tot.toLocaleString()}/yr monetary value</div><div style="margin-top:5px;font-size:12px;color:var(--tx2)">$${don.toLocaleString()} redeemed · ${pct}%</div></div>
+        <div style="display:flex;flex-direction:column;gap:5px"><button class="btn sm" onclick="editCard('${card.id}')">Edit</button><button class="btn sm danger" onclick="deleteCard('${card.id}')">Delete</button></div>
+      </div>
+      <div class="pbar-bg"><div class="pbar-fill" style="width:${pct}%;background:${card.color}"></div></div>
+    </div>`;
+  }).join('')}
+  ${!S.cards.length?'<div class="empty">No cards yet.</div>':''}`;
+}
+
+function renderAccounts(){
+  let list=S.accounts;
+  if(S.aCard!=='all') list=list.filter(a=>a.cardId===S.aCard);
+  if(S.aFilter!=='all') list=list.filter(a=>a.cat===S.aFilter);
+  const cats=[...new Set(S.accounts.map(a=>a.cat))].sort();
+  return `
+  <div class="filters">
+    <span class="filter-label">Card</span>
+    <button class="fbtn ${S.aCard==='all'?'on':''}" onclick="setACard('all')">All</button>
+    ${S.cards.map(c=>`<button class="fbtn ${S.aCard===c.id?'on':''}" onclick="setACard('${c.id}')">${c.abbr} ${esc(c.name)}</button>`).join('')}
+  </div>
+  <div class="filters">
+    <span class="filter-label">Category</span>
+    <button class="fbtn ${S.aFilter==='all'?'on':''}" onclick="setAFilter('all')">All</button>
+    ${cats.map(c=>`<button class="fbtn ${S.aFilter===c?'on':''}" onclick="setAFilter('${c}')">${esc(c)}</button>`).join('')}
+    <button class="btn sm primary" style="margin-left:auto" onclick="addAccount()">+ Add</button>
+  </div>
+  <div class="info-banner amber"><span>🔒</span><span><strong>Security:</strong> Only store usernames or emails — never passwords.</span></div>
+  ${list.length?`<div class="acct-grid">${list.map(a=>{const card=cardById(a.cardId);return `<div class="acct-card"><div class="acct-head"><div class="acct-icon" style="background:${card?card.color:'#555'}">${card?card.abbr:'?'}</div><div style="flex:1;min-width:0"><div class="acct-name">${esc(a.name)}</div><div class="acct-cat">${esc(a.cat||'')} · ${card?esc(card.bank+' '+card.name):'Unknown'}</div></div></div>${a.url?`<div class="acct-url">🔗 <a href="${esc(a.url)}" target="_blank" rel="noopener">${esc(a.url)}</a></div>`:''}${a.username?`<div class="acct-row"><span class="acct-row-lbl">Username</span><span class="acct-row-val">${esc(a.username)}</span></div>`:''}${a.notes?`<div class="acct-notes">${esc(a.notes)}</div>`:''}<div class="acct-actions"><button class="btn sm" onclick="editAccount('${a.id}')">Edit</button><button class="btn sm danger" onclick="deleteAccount('${a.id}')">Remove</button></div></div>`;}).join('')}</div>`:'<div class="empty">No accounts match your filters.</div>'}`;
+}
+
+function renderAuto(){
+  const ns=notifState(),pc=S.benefits.filter(b=>!b.redeemed).length;
+  return `
+  <div class="apanel"><span class="apanel-icon">📅</span><div class="apanel-title">Export to calendar — recommended</div><div class="apanel-desc">Downloads a .ics file with a 3-day warning + last-day deadline for every pending benefit. Import into Google Calendar, Apple Calendar, or Outlook.</div><div class="aactions"><button class="btn green" onclick="exportCal()">Download .ics — ${pc} benefit${pc!==1?'s':''}</button></div><hr class="divider"><div style="font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:9px">How to import</div><div class="steps"><div class="step"><div class="stepn">1</div><div class="stept">Click <strong>Download .ics</strong> above.</div></div><div class="step"><div class="stepn">2</div><div class="stept"><strong>Google Calendar:</strong> Settings ⚙️ → Import → choose file → Import.</div></div><div class="step"><div class="stepn">3</div><div class="stept"><strong>iPhone / Mac:</strong> open the .ics file — Calendar imports automatically.</div></div><div class="step"><div class="stepn">4</div><div class="stept">Re-download and re-import at the start of each new period.</div></div></div></div>
+  <div class="apanel"><span class="apanel-icon">🔔</span><div class="apanel-title">Browser notifications</div><div class="apanel-desc">Fires a pop-up for benefits expiring within 7 days each time you open this site.</div><div class="aactions">${ns==='on'?`<button class="btn green" disabled>✓ Notifications on</button><button class="btn sm" onclick="localStorage.removeItem('ccbt_notif');render()">Turn off</button>`:ns==='unsupported'?`<button class="btn" disabled>Not supported</button>`:`<button class="btn primary" onclick="enableNotif()">Enable notifications</button>`}</div></div>
+  <div class="apanel"><span class="apanel-icon">💾</span><div class="apanel-title">Backup &amp; restore</div><div class="apanel-desc">Export as JSON. Import on any device or after clearing browser data.</div><div class="aactions"><button class="btn" onclick="exportJSON()">Export backup</button><button class="btn" onclick="importJSON()">Import backup</button><button class="btn danger" onclick="resetData()">Reset to defaults</button></div></div>`;
+}
+
+const PALETTE=['#1B4F9C','#A07010','#1C2340','#1A5C35','#8B5E10','#7B2A8B','#C0392B','#2C7E85','#444','#6D3B47'];
+function renderCardModal(data){return `<div class="overlay" onclick="if(event.target===this)closeModal()"><div class="modal"><div class="modal-title">${data?'Edit card':'Add card'}</div><div class="modal-sub">Card display info and color.</div><div class="field-row"><div class="field"><label>Card name</label><input id="f-name" value="${esc(data?.name||'')}" placeholder="Platinum Schwab"></div><div class="field"><label>Bank</label><input id="f-bank" value="${esc(data?.bank||'')}" placeholder="AMEX"></div></div><div class="field"><label>Abbreviation (2–3 letters)</label><input id="f-abbr" value="${esc(data?.abbr||'')}" placeholder="AP" maxlength="3"></div><div class="field"><label>Color</label><div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:5px;align-items:center">${PALETTE.map(c=>`<div class="color-dot" style="background:${c};outline:${(data?.color||PALETTE[0])===c?'3px solid var(--tx)':'none'};outline-offset:2px" onclick="document.getElementById('f-color').value='${c}';document.querySelectorAll('.color-dot').forEach(x=>x.style.outline='none');this.style.outline='3px solid var(--tx)';this.style.outlineOffset='2px'"></div>`).join('')}<input type="color" id="f-color" value="${data?.color||PALETTE[0]}" style="width:28px;height:22px;border:none;background:transparent;cursor:pointer;padding:0"></div></div><div class="modal-foot"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" onclick="saveCard('${data?.id||''}')">Save</button></div></div></div>`;}
+function renderBenefitModal(data){const cardOpts=S.cards.map(c=>`<option value="${c.id}" ${data?.cardId===c.id?'selected':''}>${c.bank} ${c.name}</option>`).join('');const cycles=['monthly','quarterly','semi-annual','yearly'];const cycleOpts=cycles.map(c=>`<option value="${c}" ${data?.cycle===c?'selected':''}>${cycleLabel(c)}</option>`).join('');const cats=['Travel','Dining','Transport','Shopping','Entertainment','Health','Business','Insurance','Rewards','Other'];const catOpts=cats.map(c=>`<option ${data?.cat===c?'selected':''}>${c}</option>`).join('');return `<div class="overlay" onclick="if(event.target===this)closeModal()"><div class="modal"><div class="modal-title">${data?'Edit benefit':'Add benefit'}</div><div class="modal-sub">Benefit details and redemption notes.</div><div class="field"><label>Card</label><select id="f-card">${cardOpts}</select></div><div class="field"><label>Benefit name</label><input id="f-bname" value="${esc(data?.name||'')}" placeholder="e.g. Uber Cash"></div><div class="field-row"><div class="field"><label>Value $ (0 = perk)</label><input id="f-val" type="number" value="${data?.value||0}" min="0" step="1"></div><div class="field"><label>Cycle</label><select id="f-cycle">${cycleOpts}</select></div></div><div class="field"><label>Category</label><select id="f-cat">${catOpts}</select></div><div class="field"><label>Redemption notes</label><textarea id="f-notes" placeholder="How to redeem, enrollment steps, restrictions...">${esc(data?.notes||'')}</textarea></div><div class="modal-foot"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" onclick="saveBenefit('${data?.id||''}')">Save</button></div></div></div>`;}
+function renderAccountModal(data){const cardOpts=S.cards.map(c=>`<option value="${c.id}" ${data?.cardId===c.id?'selected':''}>${c.bank} ${c.name}</option>`).join('');const cats=['Card Portal','Travel','Dining','Transport','Shopping','Entertainment','Health','Business','Rewards','Other'];const catOpts=cats.map(c=>`<option ${data?.cat===c?'selected':''}>${c}</option>`).join('');return `<div class="overlay" onclick="if(event.target===this)closeModal()"><div class="modal"><div class="modal-title">${data?'Edit account':'Add account'}</div><div class="modal-sub">Redemption portal, URL, and login info.</div><div class="warn-box">🔒 Only store usernames/emails — <strong>never passwords</strong>.</div><div class="field"><label>Portal / Service name</label><input id="a-name" value="${esc(data?.name||'')}" placeholder="e.g. Chase Travel Portal"></div><div class="field"><label>URL</label><input id="a-url" type="url" value="${esc(data?.url||'')}" placeholder="https://"></div><div class="field-row"><div class="field"><label>Linked card</label><select id="a-card">${cardOpts}</select></div><div class="field"><label>Category</label><select id="a-cat">${catOpts}</select></div></div><div class="field"><label>Username / Email (no passwords)</label><input id="a-user" value="${esc(data?.username||'')}" placeholder="your@email.com" autocomplete="off"></div><div class="field"><label>Notes &amp; redemption tips</label><textarea id="a-notes" placeholder="Redemption instructions, tips...">${esc(data?.notes||'')}</textarea></div><div class="modal-foot"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" onclick="saveAccount('${data?.id||''}')">Save</button></div></div></div>`;}
+
+function render(){
+  document.getElementById('tabs').querySelectorAll('.tab').forEach((t,i)=>{
+    t.classList.toggle('on',['dash','benefits','cards','accounts','auto'][i]===S.tab);
+  });
+  let html='';
+  if(S.tab==='dash') html=renderDash();
+  else if(S.tab==='benefits') html=renderBenefits();
+  else if(S.tab==='cards') html=renderCards();
+  else if(S.tab==='accounts') html=renderAccounts();
+  else html=renderAuto();
+  if(S.modal){
+    if(S.modal.type==='card') html+=renderCardModal(S.modal.data);
+    else if(S.modal.type==='benefit') html+=renderBenefitModal(S.modal.data);
+    else if(S.modal.type==='account') html+=renderAccountModal(S.modal.data);
   }
+  document.getElementById('app').innerHTML=html;
+}
 
-  async function saveCard() {
-    const name = document.getElementById('f-name').value.trim();
-    const bank = document.getElementById('f-bank').value.trim();
-    if (!name || !bank) { showToast('Card Name and Bank are required'); return; }
-    const card = {
-      name, bank,
-      last4: document.getElementById('f-last4').value.trim(),
-      type: document.getElementById('f-type').value,
-      limit: parseFloat(document.getElementById('f-limit').value) || 0,
-      balance: parseFloat(document.getElementById('f-balance').value) || 0,
-      dueDay: document.getElementById('f-due').value.trim(),
-      autopay: document.getElementById('f-autopay').value,
-      rewards: document.getElementById('f-rewards').value.trim(),
-      status: document.getElementById('f-status').value,
-      notes: document.getElementById('f-notes').value.trim(),
-      updatedAt: new Date().toISOString()
-    };
-    if (initFirebase()) {
-      try {
-        if (editId) await db.collection('creditCards').doc(editId).set(card);
-        else await db.collection('creditCards').add(card);
-      } catch(e) { saveFallback(card); }
-    } else { saveFallback(card); }
-    closeModal();
-    showToast(editId ? 'Card updated' : 'Card added');
-    loadCards();
-  }
-
-  function saveFallback(card) {
-    if (editId) { const i = cards.findIndex(c => c.id === editId); if (i >= 0) cards[i] = { ...card, id: editId }; }
-    else cards.push({ ...card, id: Date.now().toString() });
-    localStorage.setItem('ea_cards', JSON.stringify(cards));
-  }
-
-  async function deleteCard(id) {
-    if (!confirm('Delete this card?')) return;
-    if (initFirebase()) {
-      try { await db.collection('creditCards').doc(id).delete(); } catch(e) {}
-    }
-    cards = cards.filter(c => c.id !== id);
-    localStorage.setItem('ea_cards', JSON.stringify(cards));
-    renderTable(); updateStats();
-    showToast('Card deleted');
-  }
-
-  function openModal(card) {
-    editId = card ? card.id : null;
-    document.getElementById('modal-title').textContent = card ? 'Edit Card' : 'Add Credit Card';
-    document.getElementById('f-name').value = card?.name || '';
-    document.getElementById('f-bank').value = card?.bank || '';
-    document.getElementById('f-last4').value = card?.last4 || '';
-    document.getElementById('f-type').value = card?.type || 'Visa';
-    document.getElementById('f-limit').value = card?.limit || '';
-    document.getElementById('f-balance').value = card?.balance || '';
-    document.getElementById('f-due').value = card?.dueDay || '';
-    document.getElementById('f-autopay').value = card?.autopay || 'Yes';
-    document.getElementById('f-rewards').value = card?.rewards || '';
-    document.getElementById('f-status').value = card?.status || 'Active';
-    document.getElementById('f-notes').value = card?.notes || '';
-    document.getElementById('modal-overlay').classList.add('open');
-  }
-
-  function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
-
-  function setFilter(val, btn) {
-    filterStatus = val;
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    renderTable();
-  }
-
-  function renderTable() {
-    const search = document.getElementById('search-input').value.toLowerCase();
-    const filtered = cards.filter(c => {
-      const matchFilter = filterStatus === 'all' || c.status === filterStatus;
-      const matchSearch = !search || [c.name, c.bank, c.last4, c.type, c.rewards].join(' ').toLowerCase().includes(search);
-      return matchFilter && matchSearch;
-    });
-    const tbody = document.getElementById('cards-tbody');
-    if (!filtered.length) {
-      tbody.innerHTML = `<tr><td colspan="11"><div class="empty-state"><i class="fa-solid fa-credit-card"></i><p>No credit cards found. Add your first card.</p></div></td></tr>`;
-      return;
-    }
-    const typeBadge = t => {
-      const map = { Visa:'badge-visa', Mastercard:'badge-mc', Amex:'badge-amex', Discover:'badge-discover' };
-      return `<span class="badge ${map[t]||'badge-other'}">${t}</span>`;
-    };
-    tbody.innerHTML = filtered.map(c => `
-      <tr>
-        <td><strong>${c.name}</strong>${c.notes ? `<div style="font-size:11px;color:var(--gray-400);margin-top:2px;">${c.notes.substring(0,40)}${c.notes.length>40?'…':''}</div>` : ''}</td>
-        <td>${c.bank || '—'}</td>
-        <td>${c.last4 ? `<span style="font-family:monospace;font-weight:700;">••••${c.last4}</span>` : '—'}</td>
-        <td>${typeBadge(c.type || 'Other')}</td>
-        <td>${c.limit ? '$' + Number(c.limit).toLocaleString() : '—'}</td>
-        <td>${c.balance !== undefined && c.balance !== '' ? '<span style="color:'+(c.balance>0?'var(--red)':'var(--green)')+'">$' + Number(c.balance).toLocaleString() + '</span>' : '—'}</td>
-        <td>${c.dueDay ? `Day ${c.dueDay}` : '—'}</td>
-        <td><span class="badge ${c.autopay==='Yes'?'badge-autopay-yes':'badge-autopay-no'}">${c.autopay||'—'}</span></td>
-        <td style="max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${c.rewards||'—'}</td>
-        <td><span class="badge ${c.status==='Active'?'badge-active':'badge-cancelled'}">${c.status||'—'}</span></td>
-        <td>
-          <div class="action-btns">
-            <button class="btn-icon edit" onclick='openModal(${JSON.stringify(c)})'><i class="fa-solid fa-pen"></i></button>
-            <button class="btn-icon del" onclick="deleteCard('${c.id}')"><i class="fa-solid fa-trash"></i></button>
-          </div>
-        </td>
-      </tr>`).join('');
-  }
-
-  function updateStats() {
-    const active = cards.filter(c => c.status === 'Active');
-    document.getElementById('sum-total').textContent = active.length;
-    const totalLimit = active.reduce((s, c) => s + (Number(c.limit) || 0), 0);
-    const totalBalance = active.reduce((s, c) => s + (Number(c.balance) || 0), 0);
-    document.getElementById('sum-limit').textContent = '$' + totalLimit.toLocaleString();
-    document.getElementById('sum-balance').textContent = '$' + totalBalance.toLocaleString();
-    const noAutopay = active.filter(c => c.autopay === 'No').length;
-    document.getElementById('sum-noautopay').textContent = noAutopay;
-
-    // Next due date
-    const today = new Date().getDate();
-    const withDue = active.filter(c => c.dueDay).map(c => {
-      let d = parseInt(c.dueDay);
-      if (d < today) d += 31;
-      return { name: c.name, day: d, orig: c.dueDay };
-    }).sort((a,b) => a.day - b.day);
-    if (withDue.length) {
-      const next = withDue[0];
-      document.getElementById('sum-due').textContent = `Day ${next.orig}`;
-      document.getElementById('sum-due').title = next.name;
-    } else {
-      document.getElementById('sum-due').textContent = '—';
-    }
-  }
-
-  function showToast(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2500);
-  }
-
-  // Close modal on overlay click
-  document.getElementById('modal-overlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
-
-  loadCards();
+load();render();checkNotif();
 </script>
 </body>
 </html>
