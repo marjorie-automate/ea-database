@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Credit Cards — EA Database</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  :root {
+    --blue: #2563eb; --blue-lt: #eff6ff; --blue-dk: #1d4ed8;
+    --green: #16a34a; --green-lt: #f0fdf4;
+    --red: #dc2626; --red-lt: #fef2f2;
+    --yellow: #d97706; --yellow-lt: #fffbeb;
+    --purple: #7c3aed; --purple-lt: #f5f3ff;
+    --gray-50: #f8fafc; --gray-100: #f1f5f9; --gray-200: #e2e8f0;
+    --gray-300: #cbd5e1; --gray-400: #94a3b8; --gray-500: #64748b;
+    --gray-600: #475569; --gray-700: #334155; --gray-800: #1e293b;
+    --sidebar-w: 240px; --radius: 8px;
+    --shadow: 0 1px 3px rgba(0,0,0,.1), 0 1px 2px rgba(0,0,0,.06);
+    --shadow-md: 0 4px 6px rgba(0,0,0,.07), 0 2px 4px rgba(0,0,0,.06);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--gray-50); color: var(--gray-800); display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  #sidebar { width: var(--sidebar-w); min-height: 100vh; background: var(--gray-800); color: #fff; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; z-index: 100; }
+  .sidebar-logo { padding: 20px 16px 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,.1); }
+  .logo-icon { width: 36px; height: 36px; background: var(--yellow); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .sidebar-logo h2 { font-size: 15px; font-weight: 700; line-height: 1.2; }
+  .sidebar-logo span { font-size: 11px; color: var(--gray-400); }
+  .sidebar-section { padding: 16px 12px 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--gray-400); }
+  nav { padding: 8px; flex: 1; }
+  .nav-link { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 6px; color: var(--gray-300); text-decoration: none; font-size: 14px; font-weight: 500; transition: all .15s; cursor: pointer; margin-bottom: 2px; }
+  .nav-link:hover { background: rgba(255,255,255,.08); color: #fff; }
+  .nav-link.active { background: var(--yellow); color: #fff; }
+  .nav-link i { width: 16px; text-align: center; font-size: 13px; }
+  .sidebar-footer { padding: 12px; border-top: 1px solid rgba(255,255,255,.1); }
+  .sidebar-footer .nav-link { color: var(--gray-400); font-size: 13px; }
+
+  /* Main */
+  #main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; }
+  .topbar { background: #fff; border-bottom: 1px solid var(--gray-200); padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+  .topbar h1 { font-size: 18px; font-weight: 700; }
+  .topbar-right { display: flex; align-items: center; gap: 10px; }
+  .btn-primary { display: inline-flex; align-items: center; gap: 7px; background: var(--yellow); color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background .15s; }
+  .btn-primary:hover { background: #b45309; }
+  .search-box { display: flex; align-items: center; gap: 8px; background: var(--gray-100); border: 1px solid var(--gray-200); border-radius: 6px; padding: 6px 12px; }
+  .search-box input { border: none; background: transparent; font-size: 13px; outline: none; width: 180px; }
+  .search-box i { color: var(--gray-400); font-size: 12px; }
+
+  /* Content */
+  .content { padding: 24px; }
+
+  /* Summary cards */
+  .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 16px; margin-bottom: 24px; }
+  .stat-card { background: #fff; border-radius: var(--radius); padding: 16px 20px; box-shadow: var(--shadow); display: flex; align-items: center; gap: 14px; }
+  .stat-icon { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .stat-icon.yellow { background: var(--yellow-lt); color: var(--yellow); }
+  .stat-icon.green { background: var(--green-lt); color: var(--green); }
+  .stat-icon.red { background: var(--red-lt); color: var(--red); }
+  .stat-icon.blue { background: var(--blue-lt); color: var(--blue); }
+  .stat-label { font-size: 12px; color: var(--gray-500); margin-bottom: 2px; }
+  .stat-value { font-size: 20px; font-weight: 700; color: var(--gray-800); }
+  .stat-sub { font-size: 11px; color: var(--gray-400); margin-top: 1px; }
+
+  /* Table card */
+  .table-card { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+  .table-header { padding: 16px 20px; border-bottom: 1px solid var(--gray-100); display: flex; align-items: center; justify-content: space-between; }
+  .table-header h3 { font-size: 15px; font-weight: 700; }
+  .table-filters { display: flex; gap: 8px; align-items: center; }
+  .filter-btn { padding: 5px 12px; border-radius: 20px; border: 1px solid var(--gray-200); background: #fff; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--gray-600); transition: all .15s; }
+  .filter-btn.active, .filter-btn:hover { background: var(--yellow); border-color: var(--yellow); color: #fff; }
+
+  table { width: 100%; border-collapse: collapse; }
+  th { padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--gray-500); background: var(--gray-50); border-bottom: 1px solid var(--gray-200); white-space: nowrap; }
+  td { padding: 12px 16px; font-size: 13px; border-bottom: 1px solid var(--gray-100); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--gray-50); }
+  .empty-state { text-align: center; padding: 48px 20px; color: var(--gray-400); }
+  .empty-state i { font-size: 32px; margin-bottom: 10px; display: block; }
+  .empty-state p { font-size: 14px; }
+
+  /* Badges */
+  .badge { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+  .badge-active { background: var(--green-lt); color: var(--green); }
+  .badge-cancelled { background: var(--gray-100); color: var(--gray-500); }
+  .badge-autopay-yes { background: var(--blue-lt); color: var(--blue); }
+  .badge-autopay-no { background: var(--red-lt); color: var(--red); }
+  .badge-visa { background: #eff6ff; color: #1d4ed8; }
+  .badge-mc { background: #fef3c7; color: #92400e; }
+  .badge-amex { background: #ecfdf5; color: #065f46; }
+  .badge-discover { background: #fff7ed; color: #9a3412; }
+  .badge-other { background: var(--gray-100); color: var(--gray-600); }
+
+  /* Action buttons */
+  .action-btns { display: flex; gap: 6px; }
+  .btn-icon { width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--gray-200); background: #fff; color: var(--gray-500); display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; transition: all .15s; }
+  .btn-icon:hover.edit { background: var(--blue-lt); border-color: var(--blue); color: var(--blue); }
+  .btn-icon:hover.del { background: var(--red-lt); border-color: var(--red); color: var(--red); }
+
+  /* Modal */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 200; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: #fff; border-radius: 12px; width: 560px; max-width: 95vw; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.2); }
+  .modal-header { padding: 20px 24px 16px; border-bottom: 1px solid var(--gray-100); display: flex; align-items: center; justify-content: space-between; }
+  .modal-header h3 { font-size: 16px; font-weight: 700; }
+  .modal-close { width: 28px; height: 28px; border-radius: 6px; border: none; background: var(--gray-100); color: var(--gray-500); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+  .modal-close:hover { background: var(--red-lt); color: var(--red); }
+  .modal-body { padding: 20px 24px; }
+  .modal-footer { padding: 16px 24px; border-top: 1px solid var(--gray-100); display: flex; justify-content: flex-end; gap: 10px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .form-row.full { grid-template-columns: 1fr; }
+  .form-group label { display: block; font-size: 12px; font-weight: 700; color: var(--gray-600); margin-bottom: 5px; text-transform: uppercase; letter-spacing: .04em; }
+  .form-group input, .form-group select, .form-group textarea {
+    width: 100%; padding: 9px 12px; border: 1px solid var(--gray-200); border-radius: 6px; font-size: 13px; color: var(--gray-800); background: #fff; outline: none; transition: border-color .15s;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--yellow); box-shadow: 0 0 0 3px rgba(217,119,6,.1); }
+  .form-group textarea { resize: vertical; min-height: 70px; }
+  .btn-cancel { padding: 9px 18px; border: 1px solid var(--gray-200); background: #fff; color: var(--gray-700); border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .btn-cancel:hover { background: var(--gray-100); }
+  .btn-save { padding: 9px 20px; background: var(--yellow); color: #fff; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .btn-save:hover { background: #b45309; }
+
+  /* Toast */
+  #toast { position: fixed; bottom: 24px; right: 24px; background: var(--gray-800); color: #fff; padding: 12px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; z-index: 999; opacity: 0; transform: translateY(8px); transition: all .3s; pointer-events: none; }
+  #toast.show { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 768px) {
+    #sidebar { transform: translateX(-100%); }
+    #main { margin-left: 0; }
+    .form-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<aside id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon"><i class="fa-solid fa-credit-card"></i></div>
+    <div>
+      <h2>Credit Cards</h2>
+      <span>EA Database</span>
+    </div>
+  </div>
+  <nav>
+    <div class="sidebar-section">Navigation</div>
+    <a class="nav-link" href="../"><i class="fa-solid fa-house"></i> Hub</a>
+    <div class="sidebar-section">Databases</div>
+    <a class="nav-link" href="https://marjorie-automate.github.io/health-dashboard/" target="_blank"><i class="fa-solid fa-heart-pulse"></i> Health</a>
+    <a class="nav-link active"><i class="fa-solid fa-credit-card"></i> Credit Cards</a>
+    <a class="nav-link" href="../travel/"><i class="fa-solid fa-plane"></i> Travel</a>
+  </nav>
+  <div class="sidebar-footer">
+    <a class="nav-link" onclick="showToast('Settings coming soon')"><i class="fa-solid fa-gear"></i> Settings</a>
+  </div>
+</aside>
+
+<div id="main">
+  <div class="topbar">
+    <h1><i class="fa-solid fa-credit-card" style="color:var(--yellow);margin-right:8px;font-size:16px;"></i>Credit Cards</h1>
+    <div class="topbar-right">
+      <div class="search-box">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="search-input" placeholder="Search cards…" oninput="renderTable()">
+      </div>
+      <button class="btn-primary" onclick="openModal()"><i class="fa-solid fa-plus"></i> Add Card</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-icon yellow"><i class="fa-solid fa-credit-card"></i></div>
+        <div>
+          <div class="stat-label">Total Cards</div>
+          <div class="stat-value" id="sum-total">0</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green"><i class="fa-solid fa-arrow-up"></i></div>
+        <div>
+          <div class="stat-label">Total Credit Limit</div>
+          <div class="stat-value" id="sum-limit">$0</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon red"><i class="fa-solid fa-arrow-down"></i></div>
+        <div>
+          <div class="stat-label">Total Balance</div>
+          <div class="stat-value" id="sum-balance">$0</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon blue"><i class="fa-solid fa-calendar"></i></div>
+        <div>
+          <div class="stat-label">Next Due Date</div>
+          <div class="stat-value" id="sum-due" style="font-size:15px;">—</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon red"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <div>
+          <div class="stat-label">No Autopay</div>
+          <div class="stat-value" id="sum-noautopay">0</div>
+          <div class="stat-sub">cards need attention</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-header">
+        <h3>All Cards</h3>
+        <div class="table-filters">
+          <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+          <button class="filter-btn" onclick="setFilter('Active', this)">Active</button>
+          <button class="filter-btn" onclick="setFilter('Cancelled', this)">Cancelled</button>
+        </div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table id="cards-table">
+          <thead>
+            <tr>
+              <th>Card Name</th>
+              <th>Bank</th>
+              <th>Last 4</th>
+              <th>Type</th>
+              <th>Credit Limit</th>
+              <th>Balance</th>
+              <th>Due Date</th>
+              <th>Autopay</th>
+              <th>Rewards</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="cards-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-title">Add Credit Card</h3>
+      <button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Card Name *</label>
+          <input id="f-name" type="text" placeholder="e.g. Chase Sapphire Reserve">
+        </div>
+        <div class="form-group">
+          <label>Bank / Issuer *</label>
+          <input id="f-bank" type="text" placeholder="e.g. Chase">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Last 4 Digits</label>
+          <input id="f-last4" type="text" maxlength="4" placeholder="1234">
+        </div>
+        <div class="form-group">
+          <label>Card Type</label>
+          <select id="f-type">
+            <option>Visa</option>
+            <option>Mastercard</option>
+            <option>Amex</option>
+            <option>Discover</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Credit Limit ($)</label>
+          <input id="f-limit" type="number" placeholder="10000">
+        </div>
+        <div class="form-group">
+          <label>Current Balance ($)</label>
+          <input id="f-balance" type="number" placeholder="0">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Due Date (day of month)</label>
+          <input id="f-due" type="number" min="1" max="31" placeholder="15">
+        </div>
+        <div class="form-group">
+          <label>Autopay</label>
+          <select id="f-autopay">
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Rewards / Points Program</label>
+          <input id="f-rewards" type="text" placeholder="e.g. Chase Ultimate Rewards">
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="f-status">
+            <option>Active</option>
+            <option>Cancelled</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row full">
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea id="f-notes" placeholder="Any additional notes…"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" onclick="saveCard()">Save Card</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+  let db = null;
+  let cards = [];
+  let editId = null;
+  let filterStatus = 'all';
+
+  // Init Firebase from localStorage config
+  function initFirebase() {
+    const projectId = localStorage.getItem('ea_firebase_project');
+    const apiKey = localStorage.getItem('ea_firebase_key');
+    const authDomain = localStorage.getItem('ea_firebase_auth_domain') || `${projectId}.firebaseapp.com`;
+    if (!projectId || !apiKey) return false;
+    try {
+      if (!firebase.apps.length) {
+        firebase.initializeApp({ apiKey, authDomain, projectId });
+      }
+      db = firebase.firestore();
+      return true;
+    } catch(e) { return false; }
+  }
+
+  async function loadCards() {
+    if (!initFirebase()) { cards = JSON.parse(localStorage.getItem('ea_cards') || '[]'); renderTable(); updateStats(); return; }
+    try {
+      const snap = await db.collection('creditCards').get();
+      cards = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    } catch(e) { cards = JSON.parse(localStorage.getItem('ea_cards') || '[]'); }
+    renderTable();
+    updateStats();
+  }
+
+  async function saveCard() {
+    const name = document.getElementById('f-name').value.trim();
+    const bank = document.getElementById('f-bank').value.trim();
+    if (!name || !bank) { showToast('Card Name and Bank are required'); return; }
+    const card = {
+      name, bank,
+      last4: document.getElementById('f-last4').value.trim(),
+      type: document.getElementById('f-type').value,
+      limit: parseFloat(document.getElementById('f-limit').value) || 0,
+      balance: parseFloat(document.getElementById('f-balance').value) || 0,
+      dueDay: document.getElementById('f-due').value.trim(),
+      autopay: document.getElementById('f-autopay').value,
+      rewards: document.getElementById('f-rewards').value.trim(),
+      status: document.getElementById('f-status').value,
+      notes: document.getElementById('f-notes').value.trim(),
+      updatedAt: new Date().toISOString()
+    };
+    if (initFirebase()) {
+      try {
+        if (editId) await db.collection('creditCards').doc(editId).set(card);
+        else await db.collection('creditCards').add(card);
+      } catch(e) { saveFallback(card); }
+    } else { saveFallback(card); }
+    closeModal();
+    showToast(editId ? 'Card updated' : 'Card added');
+    loadCards();
+  }
+
+  function saveFallback(card) {
+    if (editId) { const i = cards.findIndex(c => c.id === editId); if (i >= 0) cards[i] = { ...card, id: editId }; }
+    else cards.push({ ...card, id: Date.now().toString() });
+    localStorage.setItem('ea_cards', JSON.stringify(cards));
+  }
+
+  async function deleteCard(id) {
+    if (!confirm('Delete this card?')) return;
+    if (initFirebase()) {
+      try { await db.collection('creditCards').doc(id).delete(); } catch(e) {}
+    }
+    cards = cards.filter(c => c.id !== id);
+    localStorage.setItem('ea_cards', JSON.stringify(cards));
+    renderTable(); updateStats();
+    showToast('Card deleted');
+  }
+
+  function openModal(card) {
+    editId = card ? card.id : null;
+    document.getElementById('modal-title').textContent = card ? 'Edit Card' : 'Add Credit Card';
+    document.getElementById('f-name').value = card?.name || '';
+    document.getElementById('f-bank').value = card?.bank || '';
+    document.getElementById('f-last4').value = card?.last4 || '';
+    document.getElementById('f-type').value = card?.type || 'Visa';
+    document.getElementById('f-limit').value = card?.limit || '';
+    document.getElementById('f-balance').value = card?.balance || '';
+    document.getElementById('f-due').value = card?.dueDay || '';
+    document.getElementById('f-autopay').value = card?.autopay || 'Yes';
+    document.getElementById('f-rewards').value = card?.rewards || '';
+    document.getElementById('f-status').value = card?.status || 'Active';
+    document.getElementById('f-notes').value = card?.notes || '';
+    document.getElementById('modal-overlay').classList.add('open');
+  }
+
+  function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
+
+  function setFilter(val, btn) {
+    filterStatus = val;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderTable();
+  }
+
+  function renderTable() {
+    const search = document.getElementById('search-input').value.toLowerCase();
+    const filtered = cards.filter(c => {
+      const matchFilter = filterStatus === 'all' || c.status === filterStatus;
+      const matchSearch = !search || [c.name, c.bank, c.last4, c.type, c.rewards].join(' ').toLowerCase().includes(search);
+      return matchFilter && matchSearch;
+    });
+    const tbody = document.getElementById('cards-tbody');
+    if (!filtered.length) {
+      tbody.innerHTML = `<tr><td colspan="11"><div class="empty-state"><i class="fa-solid fa-credit-card"></i><p>No credit cards found. Add your first card.</p></div></td></tr>`;
+      return;
+    }
+    const typeBadge = t => {
+      const map = { Visa:'badge-visa', Mastercard:'badge-mc', Amex:'badge-amex', Discover:'badge-discover' };
+      return `<span class="badge ${map[t]||'badge-other'}">${t}</span>`;
+    };
+    tbody.innerHTML = filtered.map(c => `
+      <tr>
+        <td><strong>${c.name}</strong>${c.notes ? `<div style="font-size:11px;color:var(--gray-400);margin-top:2px;">${c.notes.substring(0,40)}${c.notes.length>40?'…':''}</div>` : ''}</td>
+        <td>${c.bank || '—'}</td>
+        <td>${c.last4 ? `<span style="font-family:monospace;font-weight:700;">••••${c.last4}</span>` : '—'}</td>
+        <td>${typeBadge(c.type || 'Other')}</td>
+        <td>${c.limit ? '$' + Number(c.limit).toLocaleString() : '—'}</td>
+        <td>${c.balance !== undefined && c.balance !== '' ? '<span style="color:'+(c.balance>0?'var(--red)':'var(--green)')+'">$' + Number(c.balance).toLocaleString() + '</span>' : '—'}</td>
+        <td>${c.dueDay ? `Day ${c.dueDay}` : '—'}</td>
+        <td><span class="badge ${c.autopay==='Yes'?'badge-autopay-yes':'badge-autopay-no'}">${c.autopay||'—'}</span></td>
+        <td style="max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${c.rewards||'—'}</td>
+        <td><span class="badge ${c.status==='Active'?'badge-active':'badge-cancelled'}">${c.status||'—'}</span></td>
+        <td>
+          <div class="action-btns">
+            <button class="btn-icon edit" onclick='openModal(${JSON.stringify(c)})'><i class="fa-solid fa-pen"></i></button>
+            <button class="btn-icon del" onclick="deleteCard('${c.id}')"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </td>
+      </tr>`).join('');
+  }
+
+  function updateStats() {
+    const active = cards.filter(c => c.status === 'Active');
+    document.getElementById('sum-total').textContent = active.length;
+    const totalLimit = active.reduce((s, c) => s + (Number(c.limit) || 0), 0);
+    const totalBalance = active.reduce((s, c) => s + (Number(c.balance) || 0), 0);
+    document.getElementById('sum-limit').textContent = '$' + totalLimit.toLocaleString();
+    document.getElementById('sum-balance').textContent = '$' + totalBalance.toLocaleString();
+    const noAutopay = active.filter(c => c.autopay === 'No').length;
+    document.getElementById('sum-noautopay').textContent = noAutopay;
+
+    // Next due date
+    const today = new Date().getDate();
+    const withDue = active.filter(c => c.dueDay).map(c => {
+      let d = parseInt(c.dueDay);
+      if (d < today) d += 31;
+      return { name: c.name, day: d, orig: c.dueDay };
+    }).sort((a,b) => a.day - b.day);
+    if (withDue.length) {
+      const next = withDue[0];
+      document.getElementById('sum-due').textContent = `Day ${next.orig}`;
+      document.getElementById('sum-due').title = next.name;
+    } else {
+      document.getElementById('sum-due').textContent = '—';
+    }
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  // Close modal on overlay click
+  document.getElementById('modal-overlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+
+  loadCards();
+</script>
+</body>
+</html>
