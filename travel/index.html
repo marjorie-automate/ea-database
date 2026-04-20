@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Travel & Logistics — EA Database</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  :root {
+    --blue: #2563eb; --blue-lt: #eff6ff; --blue-dk: #1d4ed8;
+    --green: #16a34a; --green-lt: #f0fdf4;
+    --red: #dc2626; --red-lt: #fef2f2;
+    --yellow: #d97706; --yellow-lt: #fffbeb;
+    --purple: #7c3aed; --purple-lt: #f5f3ff;
+    --gray-50: #f8fafc; --gray-100: #f1f5f9; --gray-200: #e2e8f0;
+    --gray-300: #cbd5e1; --gray-400: #94a3b8; --gray-500: #64748b;
+    --gray-600: #475569; --gray-700: #334155; --gray-800: #1e293b;
+    --sidebar-w: 240px; --radius: 8px;
+    --shadow: 0 1px 3px rgba(0,0,0,.1), 0 1px 2px rgba(0,0,0,.06);
+    --shadow-md: 0 4px 6px rgba(0,0,0,.07), 0 2px 4px rgba(0,0,0,.06);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--gray-50); color: var(--gray-800); display: flex; min-height: 100vh; }
+
+  #sidebar { width: var(--sidebar-w); min-height: 100vh; background: var(--gray-800); color: #fff; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; z-index: 100; }
+  .sidebar-logo { padding: 20px 16px 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,.1); }
+  .logo-icon { width: 36px; height: 36px; background: var(--purple); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .sidebar-logo h2 { font-size: 15px; font-weight: 700; line-height: 1.2; }
+  .sidebar-logo span { font-size: 11px; color: var(--gray-400); }
+  .sidebar-section { padding: 16px 12px 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--gray-400); }
+  nav { padding: 8px; flex: 1; }
+  .nav-link { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 6px; color: var(--gray-300); text-decoration: none; font-size: 14px; font-weight: 500; transition: all .15s; cursor: pointer; margin-bottom: 2px; }
+  .nav-link:hover { background: rgba(255,255,255,.08); color: #fff; }
+  .nav-link.active { background: var(--purple); color: #fff; }
+  .nav-link i { width: 16px; text-align: center; font-size: 13px; }
+  .sidebar-footer { padding: 12px; border-top: 1px solid rgba(255,255,255,.1); }
+  .sidebar-footer .nav-link { color: var(--gray-400); font-size: 13px; }
+
+  #main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; }
+  .topbar { background: #fff; border-bottom: 1px solid var(--gray-200); padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+  .topbar h1 { font-size: 18px; font-weight: 700; }
+  .topbar-right { display: flex; align-items: center; gap: 10px; }
+  .btn-primary { display: inline-flex; align-items: center; gap: 7px; background: var(--purple); color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background .15s; }
+  .btn-primary:hover { background: #6d28d9; }
+  .search-box { display: flex; align-items: center; gap: 8px; background: var(--gray-100); border: 1px solid var(--gray-200); border-radius: 6px; padding: 6px 12px; }
+  .search-box input { border: none; background: transparent; font-size: 13px; outline: none; width: 180px; }
+  .search-box i { color: var(--gray-400); font-size: 12px; }
+
+  .content { padding: 24px; }
+
+  .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 24px; }
+  .stat-card { background: #fff; border-radius: var(--radius); padding: 16px 20px; box-shadow: var(--shadow); display: flex; align-items: center; gap: 14px; }
+  .stat-icon { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .stat-icon.purple { background: var(--purple-lt); color: var(--purple); }
+  .stat-icon.green { background: var(--green-lt); color: var(--green); }
+  .stat-icon.blue { background: var(--blue-lt); color: var(--blue); }
+  .stat-icon.gray { background: var(--gray-100); color: var(--gray-500); }
+  .stat-label { font-size: 12px; color: var(--gray-500); margin-bottom: 2px; }
+  .stat-value { font-size: 20px; font-weight: 700; }
+  .stat-sub { font-size: 11px; color: var(--gray-400); margin-top: 1px; }
+
+  .table-card { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+  .table-header { padding: 16px 20px; border-bottom: 1px solid var(--gray-100); display: flex; align-items: center; justify-content: space-between; flex-wrap: gap; gap: 10px; }
+  .table-header h3 { font-size: 15px; font-weight: 700; }
+  .table-filters { display: flex; gap: 8px; flex-wrap: wrap; }
+  .filter-btn { padding: 5px 12px; border-radius: 20px; border: 1px solid var(--gray-200); background: #fff; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--gray-600); transition: all .15s; }
+  .filter-btn.active, .filter-btn:hover { background: var(--purple); border-color: var(--purple); color: #fff; }
+
+  table { width: 100%; border-collapse: collapse; }
+  th { padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--gray-500); background: var(--gray-50); border-bottom: 1px solid var(--gray-200); white-space: nowrap; }
+  td { padding: 12px 16px; font-size: 13px; border-bottom: 1px solid var(--gray-100); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--gray-50); }
+  .empty-state { text-align: center; padding: 48px 20px; color: var(--gray-400); }
+  .empty-state i { font-size: 32px; margin-bottom: 10px; display: block; }
+  .empty-state p { font-size: 14px; }
+
+  .badge { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+  .badge-upcoming { background: var(--blue-lt); color: var(--blue); }
+  .badge-inprogress { background: var(--green-lt); color: var(--green); }
+  .badge-completed { background: var(--gray-100); color: var(--gray-500); }
+  .badge-cancelled { background: var(--red-lt); color: var(--red); }
+
+  .action-btns { display: flex; gap: 6px; }
+  .btn-icon { width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--gray-200); background: #fff; color: var(--gray-500); display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; transition: all .15s; }
+  .btn-icon:hover.edit { background: var(--blue-lt); border-color: var(--blue); color: var(--blue); }
+  .btn-icon:hover.del { background: var(--red-lt); border-color: var(--red); color: var(--red); }
+
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 200; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: #fff; border-radius: 12px; width: 640px; max-width: 95vw; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.2); }
+  .modal-header { padding: 20px 24px 16px; border-bottom: 1px solid var(--gray-100); display: flex; align-items: center; justify-content: space-between; }
+  .modal-header h3 { font-size: 16px; font-weight: 700; }
+  .modal-close { width: 28px; height: 28px; border-radius: 6px; border: none; background: var(--gray-100); color: var(--gray-500); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+  .modal-close:hover { background: var(--red-lt); color: var(--red); }
+  .modal-body { padding: 20px 24px; }
+  .modal-section { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--purple); margin: 18px 0 10px; display: flex; align-items: center; gap: 6px; }
+  .modal-section:first-child { margin-top: 0; }
+  .modal-footer { padding: 16px 24px; border-top: 1px solid var(--gray-100); display: flex; justify-content: flex-end; gap: 10px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .form-row.full { grid-template-columns: 1fr; }
+  .form-row.three { grid-template-columns: 1fr 1fr 1fr; }
+  .form-group label { display: block; font-size: 12px; font-weight: 700; color: var(--gray-600); margin-bottom: 5px; text-transform: uppercase; letter-spacing: .04em; }
+  .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 9px 12px; border: 1px solid var(--gray-200); border-radius: 6px; font-size: 13px; color: var(--gray-800); background: #fff; outline: none; transition: border-color .15s; }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(124,58,237,.1); }
+  .form-group textarea { resize: vertical; min-height: 70px; }
+  .btn-cancel { padding: 9px 18px; border: 1px solid var(--gray-200); background: #fff; color: var(--gray-700); border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .btn-cancel:hover { background: var(--gray-100); }
+  .btn-save { padding: 9px 20px; background: var(--purple); color: #fff; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .btn-save:hover { background: #6d28d9; }
+
+  #toast { position: fixed; bottom: 24px; right: 24px; background: var(--gray-800); color: #fff; padding: 12px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; z-index: 999; opacity: 0; transform: translateY(8px); transition: all .3s; pointer-events: none; }
+  #toast.show { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 768px) {
+    #sidebar { transform: translateX(-100%); }
+    #main { margin-left: 0; }
+    .form-row, .form-row.three { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<aside id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon"><i class="fa-solid fa-plane"></i></div>
+    <div>
+      <h2>Travel & Logistics</h2>
+      <span>EA Database</span>
+    </div>
+  </div>
+  <nav>
+    <div class="sidebar-section">Navigation</div>
+    <a class="nav-link" href="../"><i class="fa-solid fa-house"></i> Hub</a>
+    <div class="sidebar-section">Databases</div>
+    <a class="nav-link" href="https://marjorie-automate.github.io/health-dashboard/" target="_blank"><i class="fa-solid fa-heart-pulse"></i> Health</a>
+    <a class="nav-link" href="../credit-cards/"><i class="fa-solid fa-credit-card"></i> Credit Cards</a>
+    <a class="nav-link active"><i class="fa-solid fa-plane"></i> Travel</a>
+  </nav>
+  <div class="sidebar-footer">
+    <a class="nav-link" onclick="showToast('Settings coming soon')"><i class="fa-solid fa-gear"></i> Settings</a>
+  </div>
+</aside>
+
+<div id="main">
+  <div class="topbar">
+    <h1><i class="fa-solid fa-plane" style="color:var(--purple);margin-right:8px;font-size:16px;"></i>Travel & Logistics</h1>
+    <div class="topbar-right">
+      <div class="search-box">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="search-input" placeholder="Search trips…" oninput="renderTable()">
+      </div>
+      <button class="btn-primary" onclick="openModal()"><i class="fa-solid fa-plus"></i> Add Trip</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-icon purple"><i class="fa-solid fa-plane-departure"></i></div>
+        <div>
+          <div class="stat-label">Upcoming Trips</div>
+          <div class="stat-value" id="sum-upcoming">0</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green"><i class="fa-solid fa-plane-circle-check"></i></div>
+        <div>
+          <div class="stat-label">In Progress</div>
+          <div class="stat-value" id="sum-inprogress">0</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon blue"><i class="fa-solid fa-calendar"></i></div>
+        <div>
+          <div class="stat-label">Next Departure</div>
+          <div class="stat-value" id="sum-next" style="font-size:14px;">—</div>
+          <div class="stat-sub" id="sum-next-dest"></div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon gray"><i class="fa-solid fa-flag-checkered"></i></div>
+        <div>
+          <div class="stat-label">Completed</div>
+          <div class="stat-value" id="sum-completed">0</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-header">
+        <h3>All Trips</h3>
+        <div class="table-filters">
+          <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+          <button class="filter-btn" onclick="setFilter('Upcoming', this)">Upcoming</button>
+          <button class="filter-btn" onclick="setFilter('In Progress', this)">In Progress</button>
+          <button class="filter-btn" onclick="setFilter('Completed', this)">Completed</button>
+          <button class="filter-btn" onclick="setFilter('Cancelled', this)">Cancelled</button>
+        </div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table id="travel-table">
+          <thead>
+            <tr>
+              <th>Trip</th>
+              <th>Destination</th>
+              <th>Departure</th>
+              <th>Return</th>
+              <th>Flight</th>
+              <th>Hotel</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="travel-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-title">Add Trip</h3>
+      <button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+
+      <div class="modal-section"><i class="fa-solid fa-map-pin"></i> Trip Overview</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Trip Name *</label>
+          <input id="f-trip" type="text" placeholder="e.g. NYC Business Trip">
+        </div>
+        <div class="form-group">
+          <label>Destination *</label>
+          <input id="f-dest" type="text" placeholder="e.g. New York, NY">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Departure Date</label>
+          <input id="f-depart" type="date">
+        </div>
+        <div class="form-group">
+          <label>Return Date</label>
+          <input id="f-return" type="date">
+        </div>
+      </div>
+      <div class="form-row full">
+        <div class="form-group">
+          <label>Status</label>
+          <select id="f-status">
+            <option>Upcoming</option>
+            <option>In Progress</option>
+            <option>Completed</option>
+            <option>Cancelled</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="modal-section"><i class="fa-solid fa-plane"></i> Flight Details</div>
+      <div class="form-row three">
+        <div class="form-group">
+          <label>Airline</label>
+          <input id="f-airline" type="text" placeholder="e.g. Delta">
+        </div>
+        <div class="form-group">
+          <label>Flight #</label>
+          <input id="f-flightnum" type="text" placeholder="e.g. DL 123">
+        </div>
+        <div class="form-group">
+          <label>Confirmation #</label>
+          <input id="f-flightconf" type="text" placeholder="e.g. ABC123">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Seat</label>
+          <input id="f-seat" type="text" placeholder="e.g. 12A">
+        </div>
+        <div class="form-group">
+          <label>Return Flight #</label>
+          <input id="f-returnflight" type="text" placeholder="e.g. DL 456">
+        </div>
+      </div>
+
+      <div class="modal-section"><i class="fa-solid fa-hotel"></i> Hotel Details</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Hotel Name</label>
+          <input id="f-hotel" type="text" placeholder="e.g. Marriott Times Square">
+        </div>
+        <div class="form-group">
+          <label>Confirmation #</label>
+          <input id="f-hotelconf" type="text" placeholder="e.g. HT789XY">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Check-in Date</label>
+          <input id="f-checkin" type="date">
+        </div>
+        <div class="form-group">
+          <label>Check-out Date</label>
+          <input id="f-checkout" type="date">
+        </div>
+      </div>
+
+      <div class="modal-section"><i class="fa-solid fa-car"></i> Transportation</div>
+      <div class="form-row full">
+        <div class="form-group">
+          <label>Transportation Notes</label>
+          <input id="f-transport" type="text" placeholder="e.g. Car rental at Hertz, pickup terminal B">
+        </div>
+      </div>
+
+      <div class="modal-section"><i class="fa-solid fa-note-sticky"></i> Notes & Itinerary</div>
+      <div class="form-row full">
+        <div class="form-group">
+          <label>Notes / Itinerary</label>
+          <textarea id="f-notes" placeholder="Meeting schedule, special instructions, preferences…"></textarea>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" onclick="saveTrip()">Save Trip</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+  let db = null;
+  let trips = [];
+  let editId = null;
+  let filterStatus = 'all';
+
+  function initFirebase() {
+    const projectId = localStorage.getItem('ea_firebase_project');
+    const apiKey = localStorage.getItem('ea_firebase_key');
+    const authDomain = localStorage.getItem('ea_firebase_auth_domain') || `${projectId}.firebaseapp.com`;
+    if (!projectId || !apiKey) return false;
+    try {
+      if (!firebase.apps.length) firebase.initializeApp({ apiKey, authDomain, projectId });
+      db = firebase.firestore();
+      return true;
+    } catch(e) { return false; }
+  }
+
+  async function loadTrips() {
+    if (!initFirebase()) { trips = JSON.parse(localStorage.getItem('ea_trips') || '[]'); renderTable(); updateStats(); return; }
+    try {
+      const snap = await db.collection('travel').get();
+      trips = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    } catch(e) { trips = JSON.parse(localStorage.getItem('ea_trips') || '[]'); }
+    renderTable();
+    updateStats();
+  }
+
+  async function saveTrip() {
+    const trip = document.getElementById('f-trip').value.trim();
+    const dest = document.getElementById('f-dest').value.trim();
+    if (!trip || !dest) { showToast('Trip Name and Destination are required'); return; }
+    const record = {
+      trip, dest,
+      depart: document.getElementById('f-depart').value,
+      returnDate: document.getElementById('f-return').value,
+      status: document.getElementById('f-status').value,
+      airline: document.getElementById('f-airline').value.trim(),
+      flightNum: document.getElementById('f-flightnum').value.trim(),
+      flightConf: document.getElementById('f-flightconf').value.trim(),
+      seat: document.getElementById('f-seat').value.trim(),
+      returnFlight: document.getElementById('f-returnflight').value.trim(),
+      hotel: document.getElementById('f-hotel').value.trim(),
+      hotelConf: document.getElementById('f-hotelconf').value.trim(),
+      checkIn: document.getElementById('f-checkin').value,
+      checkOut: document.getElementById('f-checkout').value,
+      transport: document.getElementById('f-transport').value.trim(),
+      notes: document.getElementById('f-notes').value.trim(),
+      updatedAt: new Date().toISOString()
+    };
+    if (initFirebase()) {
+      try {
+        if (editId) await db.collection('travel').doc(editId).set(record);
+        else await db.collection('travel').add(record);
+      } catch(e) { saveFallback(record); }
+    } else { saveFallback(record); }
+    closeModal();
+    showToast(editId ? 'Trip updated' : 'Trip added');
+    loadTrips();
+  }
+
+  function saveFallback(record) {
+    if (editId) { const i = trips.findIndex(t => t.id === editId); if (i >= 0) trips[i] = { ...record, id: editId }; }
+    else trips.push({ ...record, id: Date.now().toString() });
+    localStorage.setItem('ea_trips', JSON.stringify(trips));
+  }
+
+  async function deleteTrip(id) {
+    if (!confirm('Delete this trip?')) return;
+    if (initFirebase()) {
+      try { await db.collection('travel').doc(id).delete(); } catch(e) {}
+    }
+    trips = trips.filter(t => t.id !== id);
+    localStorage.setItem('ea_trips', JSON.stringify(trips));
+    renderTable(); updateStats();
+    showToast('Trip deleted');
+  }
+
+  function openModal(t) {
+    editId = t ? t.id : null;
+    document.getElementById('modal-title').textContent = t ? 'Edit Trip' : 'Add Trip';
+    document.getElementById('f-trip').value = t?.trip || '';
+    document.getElementById('f-dest').value = t?.dest || '';
+    document.getElementById('f-depart').value = t?.depart || '';
+    document.getElementById('f-return').value = t?.returnDate || '';
+    document.getElementById('f-status').value = t?.status || 'Upcoming';
+    document.getElementById('f-airline').value = t?.airline || '';
+    document.getElementById('f-flightnum').value = t?.flightNum || '';
+    document.getElementById('f-flightconf').value = t?.flightConf || '';
+    document.getElementById('f-seat').value = t?.seat || '';
+    document.getElementById('f-returnflight').value = t?.returnFlight || '';
+    document.getElementById('f-hotel').value = t?.hotel || '';
+    document.getElementById('f-hotelconf').value = t?.hotelConf || '';
+    document.getElementById('f-checkin').value = t?.checkIn || '';
+    document.getElementById('f-checkout').value = t?.checkOut || '';
+    document.getElementById('f-transport').value = t?.transport || '';
+    document.getElementById('f-notes').value = t?.notes || '';
+    document.getElementById('modal-overlay').classList.add('open');
+  }
+
+  function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
+
+  function setFilter(val, btn) {
+    filterStatus = val;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderTable();
+  }
+
+  function fmtDate(d) {
+    if (!d) return '—';
+    const dt = new Date(d + 'T00:00:00');
+    return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  function renderTable() {
+    const search = document.getElementById('search-input').value.toLowerCase();
+    const filtered = trips.filter(t => {
+      const matchFilter = filterStatus === 'all' || t.status === filterStatus;
+      const matchSearch = !search || [t.trip, t.dest, t.airline, t.hotel, t.status].join(' ').toLowerCase().includes(search);
+      return matchFilter && matchSearch;
+    }).sort((a, b) => {
+      if (!a.depart) return 1;
+      if (!b.depart) return -1;
+      return new Date(a.depart) - new Date(b.depart);
+    });
+
+    const tbody = document.getElementById('travel-tbody');
+    if (!filtered.length) {
+      tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><i class="fa-solid fa-plane"></i><p>No trips found. Add your first trip.</p></div></td></tr>`;
+      return;
+    }
+
+    const statusBadge = s => {
+      const map = { 'Upcoming': 'badge-upcoming', 'In Progress': 'badge-inprogress', 'Completed': 'badge-completed', 'Cancelled': 'badge-cancelled' };
+      return `<span class="badge ${map[s]||'badge-completed'}">${s}</span>`;
+    };
+
+    tbody.innerHTML = filtered.map(t => `
+      <tr>
+        <td>
+          <strong>${t.trip}</strong>
+          ${t.notes ? `<div style="font-size:11px;color:var(--gray-400);margin-top:2px;">${t.notes.substring(0,45)}${t.notes.length>45?'…':''}</div>` : ''}
+        </td>
+        <td><i class="fa-solid fa-location-dot" style="color:var(--purple);margin-right:5px;font-size:11px;"></i>${t.dest}</td>
+        <td>${fmtDate(t.depart)}</td>
+        <td>${fmtDate(t.returnDate)}</td>
+        <td>
+          ${t.airline ? `<div style="font-weight:600;">${t.airline} ${t.flightNum||''}</div>` : ''}
+          ${t.flightConf ? `<div style="font-size:11px;color:var(--gray-400);">Conf: ${t.flightConf}</div>` : ''}
+          ${!t.airline && !t.flightConf ? '—' : ''}
+        </td>
+        <td>
+          ${t.hotel ? `<div style="font-weight:600;">${t.hotel}</div>` : ''}
+          ${t.hotelConf ? `<div style="font-size:11px;color:var(--gray-400);">Conf: ${t.hotelConf}</div>` : ''}
+          ${!t.hotel && !t.hotelConf ? '—' : ''}
+        </td>
+        <td>${statusBadge(t.status || 'Upcoming')}</td>
+        <td>
+          <div class="action-btns">
+            <button class="btn-icon edit" onclick='openModal(${JSON.stringify(t)})'><i class="fa-solid fa-pen"></i></button>
+            <button class="btn-icon del" onclick="deleteTrip('${t.id}')"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </td>
+      </tr>`).join('');
+  }
+
+  function updateStats() {
+    document.getElementById('sum-upcoming').textContent = trips.filter(t => t.status === 'Upcoming').length;
+    document.getElementById('sum-inprogress').textContent = trips.filter(t => t.status === 'In Progress').length;
+    document.getElementById('sum-completed').textContent = trips.filter(t => t.status === 'Completed').length;
+
+    const upcoming = trips
+      .filter(t => (t.status === 'Upcoming' || t.status === 'In Progress') && t.depart)
+      .sort((a, b) => new Date(a.depart) - new Date(b.depart));
+
+    if (upcoming.length) {
+      document.getElementById('sum-next').textContent = fmtDate(upcoming[0].depart);
+      document.getElementById('sum-next-dest').textContent = upcoming[0].dest;
+    }
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  document.getElementById('modal-overlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+
+  loadTrips();
+</script>
+</body>
+</html>
